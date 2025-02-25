@@ -1,0 +1,111 @@
+#include <iostream>
+
+#include "app.hpp"
+#include "gl_err_callback.hpp"
+
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+	auto const src_str = [source]() {
+		switch (source)
+		{
+		case GL_DEBUG_SOURCE_API: return "API";
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
+		case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
+		case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD PARTY";
+		case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
+		case GL_DEBUG_SOURCE_OTHER: return "OTHER";
+		default: return "Unknown";
+		}
+		}();
+
+	auto const type_str = [type]() {
+		switch (type)
+		{
+		case GL_DEBUG_TYPE_ERROR: return "ERROR";
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+		case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+		case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+		case GL_DEBUG_TYPE_MARKER: return "MARKER";
+		case GL_DEBUG_TYPE_OTHER: return "OTHER";
+		default: return "Unknown";
+		}
+		}();
+
+	auto const severity_str = [severity]() {
+		switch (severity) {
+		case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+		case GL_DEBUG_SEVERITY_LOW: return "LOW";
+		case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+		case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+		default: return "Unknown";
+		}
+		}();
+
+	std::cout << "[GL CALLBACK]: " <<
+		"source = " << src_str <<
+		", type = " << type_str <<
+		", severity = " << severity_str <<
+		", ID = '" << id << '\'' <<
+		", message = '" << message << '\'' << std::endl;
+}
+
+bool vsync = true;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	switch (key)
+	{
+		case GLFW_KEY_ESCAPE:
+			if (action == GLFW_PRESS)
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+			break;
+		case GLFW_KEY_F12: //GLFW_KEY_F12 - GLFW_KEY_V
+			if (action == GLFW_PRESS) {
+				if (vsync) {
+					glfwSwapInterval(0);
+					vsync = false;
+					std::cout << "Vsync disabled" << std::endl;
+				}
+				else {
+					glfwSwapInterval(1);
+					vsync = true;
+					std::cout << "Vsync enabled" << std::endl;
+				}
+			}
+			break;
+		default:
+			break;
+	}
+	
+}
+
+void error_callback(int error, const char* description)
+{
+	std::cerr << "Error: " << description << std::endl;
+}
+
+void fbsize_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		//std::cout << "Mouse clicked at: " << xpos << ", " << ypos << std::endl;
+	}
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	//std::cout << "Mouse moved to: " << xpos << ", " << ypos << std::endl;
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	//std::cout << "Mouse scrolled: " << xoffset << ", " << yoffset << std::endl;
+}

@@ -1,0 +1,209 @@
+// icp.cpp 
+// author: JJ
+
+#include <iostream>
+#include <opencv2/opencv.hpp>
+
+#include "app.hpp"
+
+GLFWwindow* window = nullptr; // move App class 
+
+App::App()
+{
+    // default constructor
+    // nothing to do here (so far...)
+    std::cout << "Constructed...\n";
+}
+
+bool App::init()
+{
+    try {
+        // initialization code
+        //...
+
+        // init glfw
+        // https://www.glfw.org/documentation.html
+        glfwSetErrorCallback(error_callback);
+        glfwInit();
+
+        // open window (GL canvas) with no special properties
+        // https://www.glfw.org/docs/latest/quick.html#quick_create_window
+        window = glfwCreateWindow(800, 600, "OpenGL context", NULL, NULL);
+        glfwMakeContextCurrent(window);
+
+
+        // init glew
+        // http://glew.sourceforge.net/basic.html
+        App::initGlew(); //glewInit();
+        wglewInit();
+
+
+        // print info:
+		App::getInfo(GL_VENDOR, "Vendor", false);
+		App::getInfo(GL_RENDERER, "Renderer", false);
+		App::getInfo(GL_VERSION, "Version", false);
+		App::getInfo(GL_SHADING_LANGUAGE_VERSION, "Shading Language Version", false);
+		App::getInfo(GL_MAJOR_VERSION, "Major Version", true);
+		App::getInfo(GL_MINOR_VERSION, "Minor Version", true);
+		App::getInfo(GL_CONTEXT_PROFILE_MASK, "Context Profile Mask", true);
+		App::getInfo(GL_CONTEXT_FLAGS, "Context Flags", true);
+		App::getInfo(GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT, "Context Flag Forwards Compatible Bit", true);
+		App::getInfo(GL_CONTEXT_FLAG_DEBUG_BIT, "Context Flag Debug Bit", true);
+		App::getInfo(GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT, "Context Flag Robust Access Bit", true);
+		App::getInfo(GL_CONTEXT_FLAG_NO_ERROR_BIT, "Context Flag No Error Bit", true);
+
+
+        //fps count
+        
+        App::frames = 0;
+        App::frame_time = std::chrono::steady_clock::now();
+        // some init
+        // if (not_success)
+        //  throw std::runtime_error("something went bad");
+		
+
+        if (GLEW_ARB_debug_output) {
+            glDebugMessageCallback(MessageCallback, 0);
+            glEnable(GL_DEBUG_OUTPUT);
+            //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+            std::cout << "GL_DEBUG enabled." << std::endl;
+        }
+        else
+            throw std::runtime_error("GL_DEBUG NOT SUPPORTED!");
+            //std::cout << "GL_DEBUG NOT SUPPORTED!" << std::endl;
+
+		glfwSwapInterval(vsync ? 0 : 1);
+		std::cout << "Vsync " << (!vsync ? "enabled" : "disabled") << std::endl;
+    }
+    catch (std::exception const& e) {
+        throw std::runtime_error(e.what());
+        //std::cerr << "Init failed : " << e.what() << std::endl;
+        //throw;
+    }
+    std::cout << "Initialized...\n";
+    return true;
+}
+
+int App::run(void)
+{
+    try {
+        // app code
+        //...
+        while (!glfwWindowShouldClose(window))
+        {
+            // ... do_something();
+            // 
+			glfwSetKeyCallback(window, key_callback);
+			glfwSetFramebufferSizeCallback(window, fbsize_callback);
+			glfwSetMouseButtonCallback(window, mouse_button_callback);
+			glfwSetCursorPosCallback(window, cursor_position_callback);
+			glfwSetScrollCallback(window, scroll_callback);
+             
+            // Clear OpenGL canvas, both color buffer and Z-buffer
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Swap front and back buffers
+            glfwSwapBuffers(window);
+
+            // Poll for and process events
+            glfwPollEvents();
+            
+            //fps count
+            App::getFPS();
+
+            //throw std::runtime_error("Message");
+        }
+    }
+    catch (std::exception const& e) {
+        throw std::runtime_error(e.what());
+        //std::cerr << "App failed : " << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    
+    std::cout << "Finished OK...\n";
+    return EXIT_SUCCESS;
+}
+
+App::~App()
+{
+    // clean-up
+    if (window)
+        glfwDestroyWindow(window);
+    glfwTerminate();
+    //cv::destroyAllWindows();
+    std::cout << "Bye...\n";
+}
+
+void App::initGlew(void) {
+    // Initialize all valid generic GL extensions with GLEW.
+    // Usable AFTER creating GL context! (create with glfwInit(), glfwCreateWindow(), glfwMakeContextCurrent())
+    GLenum glew_ret = glewInit();
+    if (glew_ret != GLEW_OK) {
+        throw std::runtime_error(std::string("GLEW failed with error: ")
+            + reinterpret_cast<const char*>(glewGetErrorString(glew_ret)));
+    }
+    else {
+        std::cout << "GLEW successfully initialized to version: " << glewGetString(GLEW_VERSION) << std::endl;
+    }
+
+    // Platform specific part.
+    glew_ret = wglewInit();
+    if (glew_ret != GLEW_OK) {
+        throw std::runtime_error(std::string("WGLEW failed with error: ")
+            + reinterpret_cast<const char*>(glewGetErrorString(glew_ret)));
+    }
+    else {
+        std::cout << "WGLEW successfully initialized platform specific functions." << std::endl;
+    }
+
+    // If you want, you can get extensions and list...
+    /*GLint n = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+    std::cout << "We have " << n << " extensions.\n";
+    for (int i = 0; i < n; i++) {
+        const char* extension_name = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+        std::cout << extension_name << '\n';
+    }*/
+}
+
+void App::getInfo(GLenum type, const std::string& display_name, bool numeric)
+{
+    if (numeric)
+    {
+        GLint my_int;
+		glGetIntegerv(type, &my_int);
+        if (type == GL_CONTEXT_PROFILE_MASK) {
+            if (my_int & GL_CONTEXT_CORE_PROFILE_BIT) {
+                std::cout << "We are using CORE profile\n";
+            }
+            else {
+                if (my_int & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) {
+                    std::cout << "We are using COMPATIBILITY profile\n";
+                }
+            }
+        }
+		std::cout << display_name + ": " << my_int << std::endl;
+        return;
+    }
+	const char* my_string = (const char*)glGetString(type);
+
+	if (my_string)
+		std::cout << display_name + ": " << my_string << std::endl;
+	else
+		std::cerr << display_name + " is not available" << std::endl;
+}
+
+void App::getFPS() {
+    frames++;
+    auto now = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed_seconds = now - frame_time;
+    if (elapsed_seconds.count() >= 1)
+    {
+        std::string vsync_mode = !vsync ? "enabled" : "disabled";
+		std::string title = std::string("FPS: ").append(std::to_string(frames)).append(std::string(" VSync ")).append(vsync_mode);
+        glfwSetWindowTitle(window, title.c_str());
+        frames = 0;
+        frame_time = now;
+    }
+}
