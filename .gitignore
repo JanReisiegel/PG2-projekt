@@ -1,0 +1,42 @@
+# Ignore build directories
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+[Dd]istros/
+[Rr]elease/
+[Rr]eleasePublic/
+
+# Ignore user-specific files
+.vs/
+.vscode/
+.idea/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Ignore generated files
+*.dbmdl
+*.bak
+*.swp
+*.tmp
+
+# Ignore compiled object and executable files
+*.obj
+*.exe
+*.dll
+*.lib
+*.pdb
+
+# Ignore dependencies
+/deps/
+/packages/
+*.tar.gz
+*.zip
+/vcpkg_installed/
+
+# Ignore OpenGL and related tools specific build files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+CMakeSettings.json
