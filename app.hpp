@@ -34,13 +34,17 @@ public:
     bool init(void);
     int run(void);
 
+    bool vsync;
+
     ~App();
 private:
     void getInfo(GLenum, const std::string&, bool);
     int frames;
     std::chrono::steady_clock::time_point frame_time;
+	GLFWwindow* window;
     void getFPS();
 	void initGlew(void);
+    static void key_callback(GLFWwindow*, int, int, int, int);
 
 };
 

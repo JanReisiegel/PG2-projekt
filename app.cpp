@@ -73,8 +73,15 @@ bool App::init()
             throw std::runtime_error("GL_DEBUG NOT SUPPORTED!");
             //std::cout << "GL_DEBUG NOT SUPPORTED!" << std::endl;
 
-		glfwSwapInterval(vsync ? 0 : 1);
+		glfwSwapInterval(vsync ? 1 : 0);
 		std::cout << "Vsync " << (!vsync ? "enabled" : "disabled") << std::endl;
+
+		glfwSetWindowUserPointer(window, this);
+        glfwSetKeyCallback(window, key_callback);
+        glfwSetFramebufferSizeCallback(window, fbsize_callback);
+        glfwSetMouseButtonCallback(window, mouse_button_callback);
+        glfwSetCursorPosCallback(window, cursor_position_callback);
+        glfwSetScrollCallback(window, scroll_callback);
     }
     catch (std::exception const& e) {
         throw std::runtime_error(e.what());
@@ -94,11 +101,7 @@ int App::run(void)
         {
             // ... do_something();
             // 
-			glfwSetKeyCallback(window, key_callback);
-			glfwSetFramebufferSizeCallback(window, fbsize_callback);
-			glfwSetMouseButtonCallback(window, mouse_button_callback);
-			glfwSetCursorPosCallback(window, cursor_position_callback);
-			glfwSetScrollCallback(window, scroll_callback);
+			
              
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,7 +203,7 @@ void App::getFPS() {
     std::chrono::duration<double> elapsed_seconds = now - frame_time;
     if (elapsed_seconds.count() >= 1)
     {
-        std::string vsync_mode = !vsync ? "enabled" : "disabled";
+        std::string vsync_mode = App::vsync ? "enabled" : "disabled";
 		std::string title = std::string("FPS: ").append(std::to_string(frames)).append(std::string(" VSync ")).append(vsync_mode);
         glfwSetWindowTitle(window, title.c_str());
         frames = 0;

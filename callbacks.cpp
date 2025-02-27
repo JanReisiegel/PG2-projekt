@@ -50,26 +50,26 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		", message = '" << message << '\'' << std::endl;
 }
 
-bool vsync = true;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void App::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
 	switch (key)
 	{
 		case GLFW_KEY_ESCAPE:
 			if (action == GLFW_PRESS)
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 			break;
-		case GLFW_KEY_F12: //GLFW_KEY_F12 - GLFW_KEY_V
+		case GLFW_KEY_V: //GLFW_KEY_F12 - GLFW_KEY_V
+			
 			if (action == GLFW_PRESS) {
-				if (vsync) {
+				if (app_instance->vsync) {
 					glfwSwapInterval(0);
-					vsync = false;
+					app_instance->vsync = false;
 					std::cout << "Vsync disabled" << std::endl;
 				}
 				else {
 					glfwSwapInterval(1);
-					vsync = true;
+					app_instance->vsync = true;
 					std::cout << "Vsync enabled" << std::endl;
 				}
 			}
