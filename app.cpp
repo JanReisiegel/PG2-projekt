@@ -82,6 +82,11 @@ bool App::init()
         glfwSetMouseButtonCallback(window, mouse_button_callback);
         glfwSetCursorPosCallback(window, cursor_position_callback);
         glfwSetScrollCallback(window, scroll_callback);
+
+		if (!GLEW_ARB_direct_state_access)
+			throw std::runtime_error("DSA not supported!");
+        
+        App::init_assets();
     }
     catch (std::exception const& e) {
         throw std::runtime_error(e.what());
@@ -97,6 +102,16 @@ int App::run(void)
     try {
         // app code
         //...
+
+        /*GLfloat r, g, b, a;
+		r = b = a = 1.0f;
+		g = 0.0f;*/
+		glUseProgram(shader_prog_ID);
+
+		GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
+		if (uniform_color_location == -1)
+			throw std::runtime_error("uniform_Color not found!");
+
         while (!glfwWindowShouldClose(window))
         {
             // ... do_something();
@@ -105,6 +120,11 @@ int App::run(void)
              
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+			glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
+			glBindVertexArray(vao_ID);
+			glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -130,6 +150,9 @@ int App::run(void)
 
 App::~App()
 {
+	glDeleteProgram(shader_prog_ID);
+	glDeleteVertexArrays(1, &vao_ID);
+	glDeleteBuffers(1, &vbo_ID);
     // clean-up
     if (window)
         glfwDestroyWindow(window);
@@ -209,4 +232,52 @@ void App::getFPS() {
         frames = 0;
         frame_time = now;
     }
+}
+
+void App::init_assets() {
+	const char* vertex_shader =
+		"#version 460 core\n"
+		"in vec3 attribute_Position;"
+		"void main() {"
+		"  gl_Position = vec4(attribute_Position, 1.0);"
+		"}";
+
+	const char* fragment_shader =
+		"#version 460 core\n"
+		"uniform vec4 uniform_Color;"
+		"out vec4 FragColor;"
+		"void main() {"
+		"  FragColor = uniform_Color;"
+		"}";
+
+	GLuint vertex_shader_ID = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex_shader_ID, 1, &vertex_shader, NULL);
+	glCompileShader(vertex_shader_ID);
+
+	GLuint fragment_shader_ID = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment_shader_ID, 1, &fragment_shader, NULL);
+	glCompileShader(fragment_shader_ID);
+
+	shader_prog_ID = glCreateProgram();
+	glAttachShader(shader_prog_ID, vertex_shader_ID);
+	glAttachShader(shader_prog_ID, fragment_shader_ID);
+	glLinkProgram(shader_prog_ID);
+
+	glDetachShader(shader_prog_ID, vertex_shader_ID);
+	glDetachShader(shader_prog_ID, fragment_shader_ID);
+	glDeleteShader(vertex_shader_ID);
+	glDeleteShader(fragment_shader_ID);
+
+	glCreateVertexArrays(1, &vao_ID);
+
+	GLint position_attribute_location = glGetAttribLocation(shader_prog_ID, "attribute_Position");
+    
+	glEnableVertexArrayAttrib(vao_ID, position_attribute_location);
+	glVertexArrayAttribFormat(vao_ID, position_attribute_location, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, position));
+	glVertexArrayAttribBinding(vao_ID, position_attribute_location, 0);
+
+	glCreateBuffers(1, &vbo_ID);
+	glNamedBufferData(vbo_ID, triangle_vertices.size() * sizeof(vertex), triangle_vertices.data(), GL_STATIC_DRAW);
+
+	glVertexArrayVertexBuffer(vao_ID, 0, vbo_ID, 0, sizeof(vertex));
 }

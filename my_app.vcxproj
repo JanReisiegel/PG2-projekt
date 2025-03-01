@@ -168,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.hpp" />
+    <ClInclude Include="assets.hpp" />
     <ClInclude Include="callbacks.hpp" />
     <ClInclude Include="gl_err_callback.hpp" />
   </ItemGroup>

@@ -65,12 +65,10 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
 				if (app_instance->vsync) {
 					glfwSwapInterval(0);
 					app_instance->vsync = false;
-					std::cout << "Vsync disabled" << std::endl;
 				}
 				else {
 					glfwSwapInterval(1);
 					app_instance->vsync = true;
-					std::cout << "Vsync enabled" << std::endl;
 				}
 			}
 			break;
@@ -105,7 +103,10 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	//std::cout << "Mouse moved to: " << xpos << ", " << ypos << std::endl;
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void App::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	//std::cout << "Mouse scrolled: " << xoffset << ", " << yoffset << std::endl;
+	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
+	//zmìnit GLfloat r na jinou hodnotu podle scrollu
+	GLfloat tem_g = app_instance->g;
+	app_instance->g= std::max(0.0f, std::min(1.0f, tem_g + (float)yoffset / 10.0f));
 }
