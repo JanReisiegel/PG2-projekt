@@ -108,21 +108,27 @@ int App::run(void)
 		g = 0.0f;*/
 		glUseProgram(shader_prog_ID);
 
-		GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
-		if (uniform_color_location == -1)
-			throw std::runtime_error("uniform_Color not found!");
+		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
+		glm::vec4 ourRGBA = { 0.0f, 0.0f, 0.0f, 1.0f };
+		/*if (uniform_color_location == -1)
+			throw std::runtime_error("uniform_Color not found!");*/
 
         while (!glfwWindowShouldClose(window))
         {
             // ... do_something();
             // 
 			
+			
              
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            for (auto model : scene) {
+				model.second.shader.setUniform("color", ourRGBA);
+				model.second.draw();
+			}
 
-			glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
+			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
 			glBindVertexArray(vao_ID);
 			glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
 
@@ -237,7 +243,7 @@ void App::getFPS() {
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic.vert", "resources/basic.frag");
 
-    Model my_model = Model("resources/plane_tri_vnt.obj", my_shader_program);
+    Model my_model = Model("resources/triangle.obj", my_shader_program);
 
     scene.emplace("our_first_object", my_model);
 

@@ -13,7 +13,7 @@ Model::Model(const std::filesystem::path& filename, ShaderProgram shader) {
 	if (!LoadOBJFile(filename.string().c_str(), temp_postions, temp_texcoords, temp_normals))
 		throw std::runtime_error("Failed to load OBJ file!");
 
-	if (!(temp_postions.size() == temp_texcoords.size()  == temp_normals.size()))
+	if (temp_postions.size() != temp_texcoords.size() || temp_texcoords.size() != temp_normals.size())
 		throw std::runtime_error("OBJ file has inconsistent data!");
 
 	vertices.reserve(temp_postions.size());
@@ -121,4 +121,5 @@ bool Model::LoadOBJFile(const char* path,
 	fclose(file);
 	return true;
 
+	
 }
