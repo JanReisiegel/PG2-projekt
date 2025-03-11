@@ -27,6 +27,7 @@
 #include "gl_err_callback.hpp"
 #include "callbacks.hpp"
 #include "assets.hpp"
+#include "Model.hpp"
 
 class App {
 public:
@@ -44,10 +45,10 @@ private:
     GLFWwindow* window;
     //budeme mazat
     GLuint shader_prog_ID{ 0 };
-	GLuint vao_ID{ 0 };
-	GLuint vbo_ID{ 0 };
+    GLuint vao_ID{ 0 };
+    GLuint vbo_ID{ 0 };
     GLfloat r{ 1.0f }, g{ 0.0f }, b{ 0.0f }, a{ 1.0f };
-    std::vector<vertex> triangle_vertices =
+    std::vector<Vertex> triangle_vertices =
     {
         {{0.0f,  0.5f,  0.0f}},
         {{0.5f, -0.5f,  0.0f}},
@@ -63,6 +64,7 @@ private:
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
-    
+protected:
+    std::unordered_map<std::string, Model> scene;
 };
 

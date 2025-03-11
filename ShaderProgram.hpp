@@ -13,6 +13,7 @@ public:
 
 	void activate(void) { glUseProgram(ID); };    // activate shader
 	void deactivate(void) { glUseProgram(0); };   // deactivate current shader program (i.e. activate shader no. 0)
+	GLuint getProgramID(void) { return ID; };     // get shader program ID
 
 	void clear(void) { 	//deallocate shader program
 		deactivate();
