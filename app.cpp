@@ -235,20 +235,34 @@ void App::getFPS() {
 }
 
 void App::init_assets() {
-	const char* vertex_shader =
-		"#version 460 core\n"
+    const char* vertex_shader =
+        "#version 460 core"
+        "in vec3 aPos;"
+        "in vec3 aColor;"
+        "out vec3 color;"
+        "void main(){"
+        "   gl_Position = vec4(aPos, 1.0);"
+        "   color = aColor;"
+        "}";
+		/*"#version 460 core\n"
 		"in vec3 attribute_Position;"
 		"void main() {"
 		"  gl_Position = vec4(attribute_Position, 1.0);"
-		"}";
+		"}";*/
 
-	const char* fragment_shader =
-		"#version 460 core\n"
+    const char* fragment_shader =
+        "#version 460 core"
+        "in vec3 color;"
+        "out vec4 FragColor;"
+        "void main(){"
+        "   FragColor = vec4(color, 1.0f);"
+        "}";
+		/*"#version 460 core\n"
 		"uniform vec4 uniform_Color;"
 		"out vec4 FragColor;"
 		"void main() {"
 		"  FragColor = uniform_Color;"
-		"}";
+		"}";*/
 
 	GLuint vertex_shader_ID = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex_shader_ID, 1, &vertex_shader, NULL);
