@@ -109,7 +109,7 @@ int App::run(void)
 		glUseProgram(shader_prog_ID);
 
 		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
-		glm::vec4 ourRGBA = { 0.0f, 0.0f, 0.0f, 1.0f };
+		glm::vec4 ourRGBA = { 0.0f, 0.0f, 1.0f, 1.0f };
 		/*if (uniform_color_location == -1)
 			throw std::runtime_error("uniform_Color not found!");*/
 
@@ -124,13 +124,13 @@ int App::run(void)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-				model.second.shader.setUniform("color", ourRGBA);
+				//model.second.shader.setUniform("color", ourRGBA);
 				model.second.draw();
 			}
 
 			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
-			glBindVertexArray(vao_ID);
-			glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
+			//glBindVertexArray(vao_ID);
+			//glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
 
             // Swap front and back buffers
             glfwSwapBuffers(window);

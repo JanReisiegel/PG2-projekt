@@ -39,26 +39,33 @@ public:
         orientation(orientation),
         texture_id(texture_id) {
 
-		GLuint prog_h = shader.getProgramID();
+
 		//Vao, Vbo, Ebo
-        // Generate the VAO
         glCreateVertexArrays(1, &VAO);
-        // Set Vertex Attribute to explain OpenGL how to interpret the data
-        GLint position_attrib_location = glGetAttribLocation(prog_h, "aPos");
-        glVertexArrayAttribFormat(VAO, position_attrib_location, 3, GL_FLOAT, GL_FALSE, 0);
-        glVertexArrayAttribBinding(VAO, position_attrib_location, 0);
-        glEnableVertexArrayAttrib(VAO, position_attrib_location);
-        // Create and fill data
-        glCreateBuffers(1, &VBO); // Vertex Buffer Object
-        glNamedBufferData(VBO, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
-        glCreateBuffers(1, &EBO); // Element Buffer Object
-        glNamedBufferData(EBO, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-        // Connect together
-        glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
+
+        glCreateBuffers(1, &VBO);
+        glNamedBufferStorage(VBO, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_STORAGE_BIT);
+
+        glCreateBuffers(1, &EBO);
+        glNamedBufferStorage(EBO, indices.size() * sizeof(GLuint), indices.data(), GL_DYNAMIC_STORAGE_BIT);
+
         glVertexArrayElementBuffer(VAO, EBO);
-        // USE
-        //glUseProgram(shaderProgram);
-		shader.activate();
+
+        glEnableVertexArrayAttrib(VAO, 0);
+        glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
+        glVertexArrayAttribBinding(VAO, 0, 0);
+
+        glEnableVertexArrayAttrib(VAO, 0);
+        glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
+        glVertexArrayAttribBinding(VAO, 0, 0);
+
+        glEnableVertexArrayAttrib(VAO, 0);
+        glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
+        glVertexArrayAttribBinding(VAO, 0, 0);
+
+        // Bind the VBO to the VAO binding point 0
+        glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
+
         glBindVertexArray(VAO);
         
     };
@@ -79,8 +86,9 @@ public:
         //    ...
         //}
         
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         //TODO: draw mesh: bind vertex array object, draw all elements with selected primitive type 
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     }
 
 
