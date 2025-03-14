@@ -55,18 +55,15 @@ public:
         glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
         glVertexArrayAttribBinding(VAO, 0, 0);
 
-        glEnableVertexArrayAttrib(VAO, 0);
-        glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
-        glVertexArrayAttribBinding(VAO, 0, 0);
+        glEnableVertexArrayAttrib(VAO, 1);
+        glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
+        glVertexArrayAttribBinding(VAO, 1, 0);
 
-        glEnableVertexArrayAttrib(VAO, 0);
-        glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
-        glVertexArrayAttribBinding(VAO, 0, 0);
+        glEnableVertexArrayAttrib(VAO, 2);
+        glVertexArrayAttribFormat(VAO, 2, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
+        glVertexArrayAttribBinding(VAO, 2, 0);
 
-        // Bind the VBO to the VAO binding point 0
         glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
-
-        glBindVertexArray(VAO);
         
     };
         // TODO: create and initialize VAO, VBO, EBO and parameters;
@@ -88,7 +85,7 @@ public:
         
         //TODO: draw mesh: bind vertex array object, draw all elements with selected primitive type 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(primitive_type, indices.size(), GL_UNSIGNED_INT, 0);
     }
 
 
@@ -96,12 +93,17 @@ public:
         texture_id = 0;
         primitive_type = GL_POINT;
         // TODO: clear rest of the member variables to safe default
+        // ----maybe wrong
+        VBO = 0;
+        VAO = 0;
+        EBO = 0;
+        glDeleteBuffers(1, &VBO);
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &EBO);
         
         // TODO: delete all allocations 
-		glDeleteBuffers(1, &VBO);
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &EBO);
-        
+        vertices.clear();
+        indices.clear();
     };
 
 private:

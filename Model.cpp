@@ -32,7 +32,9 @@ Model::Model(const std::filesystem::path& filename, ShaderProgram shader) {
 
 	Mesh mesh = Mesh(GL_TRIANGLES, shader, vertices, indices, origin, orientation);
 
-	draw();
+	meshes.push_back(mesh);
+
+	//draw();
 }
 
 bool Model::LoadOBJFile(const char* path,

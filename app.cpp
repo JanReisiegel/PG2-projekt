@@ -109,7 +109,7 @@ int App::run(void)
 		glUseProgram(shader_prog_ID);
 
 		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
-		glm::vec4 ourRGBA = { 0.0f, 0.0f, 1.0f, 1.0f };
+		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
 		/*if (uniform_color_location == -1)
 			throw std::runtime_error("uniform_Color not found!");*/
 
@@ -124,7 +124,7 @@ int App::run(void)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-				//model.second.shader.setUniform("color", ourRGBA);
+				//model.second.shader.setUniform("FragColor", ourRGBA);
 				model.second.draw();
 			}
 
@@ -241,7 +241,7 @@ void App::getFPS() {
 }
 
 void App::init_assets() {
-    ShaderProgram my_shader_program = ShaderProgram("resources/basic.vert", "resources/basic.frag");
+    ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_core.frag");
 
     Model my_model = Model("resources/triangle.obj", my_shader_program);
 
