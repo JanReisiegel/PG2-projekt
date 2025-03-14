@@ -133,6 +133,10 @@ int App::run(void)
             0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
             20000.0f              // Far clipping plane. Keep as little as possible.
         );
+        //
+        // set viewport
+        //
+        glViewport(0, 0, width, height);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -145,18 +149,13 @@ int App::run(void)
 
             for (auto model : scene) {
                 model.second.shader.setUniform("ucolor", ourRGBA);
-                model.second.shader.setUniform("uP_m", projectionMatrix);
+                //model.second.shader.setUniform("uP_m", projectionMatrix);
                 model.second.draw();
 			}
 
 			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
 			//glBindVertexArray(vao_ID);
 			//glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
-
-            //
-            // set viewport
-            //
-            glViewport(0, 0, width, height);
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -271,11 +270,10 @@ void App::getFPS() {
 
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
-
+    my_shader_program.activate();
 	
-
-    Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
+    Model my_model = Model("resources/triangle.obj", my_shader_program);
 
     scene.emplace("our_first_object", my_model);
-    my_shader_program.activate();
+    
 }

@@ -82,6 +82,7 @@ void Mesh::draw(glm::mat4 const& model_matrix) {
     glBindVertexArray(VAO);
     glDrawElements(primitive_type, indices.size(), GL_UNSIGNED_INT, 0);
 }
+
 void Mesh::clear(void) {
     texture_id = 0;
     primitive_type = GL_POINT;
