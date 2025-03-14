@@ -14,6 +14,8 @@ public:
     std::vector<Mesh> meshes;
     std::string name;
     glm::vec3 origin{};
+	glm::vec3 scale{};
+	glm::mat4 local_model_matrix{};
     glm::vec3 orientation{};
 	ShaderProgram shader; //{0};
     
@@ -30,12 +32,11 @@ public:
         // origin += glm::vec3(3,0,0) * delta_t; // s = s0 + v*dt
     }
     
-    void draw(glm::vec3 const & offset = glm::vec3(0.0), glm::vec3 const & rotation = glm::vec3(0.0f)) {
-        // call draw() on mesh (all meshes)
-        for (auto& mesh : meshes) {
-            mesh.draw(origin + offset, orientation + rotation);
-        }
-    }
+    void draw(glm::vec3 const& offset = glm::vec3(0.0),
+        glm::vec3 const& rotation = glm::vec3(0.0f),
+        glm::vec3 const& scale_change = glm::vec3(1.0f));
+
+    void draw(glm::mat4 const& model_matrix);
     bool LoadOBJFile(
         const char* path,
         std::vector < glm::vec3 >& out_vertices,

@@ -83,8 +83,14 @@ void error_callback(int error, const char* description)
 	std::cerr << "Error: " << description << std::endl;
 }
 
-void fbsize_callback(GLFWwindow* window, int width, int height)
+void App::fbsize_callback(GLFWwindow* window, int width, int height)
 {
+	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
+	if (height <= 0) // avoid division by 0
+		height = 1;
+
+	float ratio = static_cast<float>(width) / height;
+	app_instance->projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 100.0f);
 	glViewport(0, 0, width, height);
 }
 

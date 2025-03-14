@@ -1,4 +1,4 @@
-// icp.cpp 
+﻿// icp.cpp 
 // author: JJ
 
 #include <iostream>
@@ -114,25 +114,49 @@ int App::run(void)
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
 		/*if (uniform_color_location == -1)
 			throw std::runtime_error("uniform_Color not found!");*/
+            //
+        
+        // Create and set projection matrix
+        // You can only set uniforms AFTER shader compile 
+        //
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
+
+        if (height <= 0) // avoid division by 0
+            height = 1;
+
+        float ratio = static_cast<float>(width) / height;
+
+        projectionMatrix = glm::perspective(
+            glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+            ratio,			     // Aspect Ratio. Depends on the size of your window.
+            0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+            20000.0f              // Far clipping plane. Keep as little as possible.
+        );
 
         while (!glfwWindowShouldClose(window))
         {
             // ... do_something();
             // 
 			
-			
              
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-                model.second.shader.setUniform("color", ourRGBA);
-				model.second.draw();
+                model.second.shader.setUniform("ucolor", ourRGBA);
+                model.second.shader.setUniform("uP_m", projectionMatrix);
+                model.second.draw();
 			}
 
 			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
 			//glBindVertexArray(vao_ID);
 			//glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
+
+            //
+            // set viewport
+            //
+            glViewport(0, 0, width, height);
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -248,8 +272,10 @@ void App::getFPS() {
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
 
+	
+
     Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
 
     scene.emplace("our_first_object", my_model);
-
+    my_shader_program.activate();
 }

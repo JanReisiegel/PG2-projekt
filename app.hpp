@@ -51,7 +51,9 @@ private:
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
+	static void fbsize_callback(GLFWwindow*, int, int);
 protected:
     std::unordered_map<std::string, Model> scene;
+    glm::mat4 projectionMatrix;
 };
 
