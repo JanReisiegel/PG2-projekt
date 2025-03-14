@@ -1,3 +1,6 @@
+# custom
+!resources/*.obj
+
 # Ignore build directories
 [Dd]ebug/
 [Dd]ebugPublic/
