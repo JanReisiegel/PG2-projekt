@@ -124,7 +124,7 @@ int App::run(void)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-				//model.second.shader.setUniform("FragColor", ourRGBA);
+                //model.second.shader.setUniform("ucolor", ourRGBA);
 				model.second.draw();
 			}
 
@@ -243,7 +243,7 @@ void App::getFPS() {
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_core.frag");
 
-    Model my_model = Model("resources/triangle.obj", my_shader_program);
+    Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
 
     scene.emplace("our_first_object", my_model);
 
