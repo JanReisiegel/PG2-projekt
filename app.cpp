@@ -160,6 +160,9 @@ App::~App()
 	glDeleteVertexArrays(1, &vao_ID);
 	glDeleteBuffers(1, &vbo_ID);
     // clean-up
+    for (auto model : scene) {
+        model.second.shader.clear();
+    }
     if (window)
         glfwDestroyWindow(window);
     glfwTerminate();
