@@ -106,7 +106,7 @@ int App::run(void)
         /*GLfloat r, g, b, a;
 		r = b = a = 1.0f;
 		g = 0.0f;*/
-		glUseProgram(shader_prog_ID);
+		//glUseProgram(shader_prog_ID);
 
 		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
@@ -124,7 +124,7 @@ int App::run(void)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-                //model.second.shader.setUniform("ucolor", ourRGBA);
+                model.second.shader.setUniform("color", ourRGBA);
 				model.second.draw();
 			}
 
@@ -156,9 +156,9 @@ int App::run(void)
 
 App::~App()
 {
-	glDeleteProgram(shader_prog_ID);
-	glDeleteVertexArrays(1, &vao_ID);
-	glDeleteBuffers(1, &vbo_ID);
+	//glDeleteProgram(shader_prog_ID);
+	//glDeleteVertexArrays(1, &vao_ID);
+	//glDeleteBuffers(1, &vbo_ID);
     // clean-up
     for (auto model : scene) {
         model.second.shader.clear();
@@ -244,7 +244,7 @@ void App::getFPS() {
 }
 
 void App::init_assets() {
-    ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_core.frag");
+    ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
 
     Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
 

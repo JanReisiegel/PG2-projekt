@@ -107,6 +107,6 @@ void App::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
 	//zmìnit GLfloat r na jinou hodnotu podle scrollu
-	GLfloat tem_g = app_instance->g;
-	app_instance->g= std::max(0.0f, std::min(1.0f, tem_g + (float)yoffset / 10.0f));
+	//GLfloat tem_g = app_instance->g;
+	//app_instance->g= std::max(0.0f, std::min(1.0f, tem_g + (float)yoffset / 10.0f));
 }
