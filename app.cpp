@@ -86,6 +86,7 @@ bool App::init()
 		if (!GLEW_ARB_direct_state_access)
 			throw std::runtime_error("DSA not supported!");
         
+        glEnable(GL_DEPTH_TEST);
         App::init_assets();
     }
     catch (std::exception const& e) {
@@ -102,6 +103,7 @@ int App::run(void)
     try {
         // app code
         //...
+
 
         /*GLfloat r, g, b, a;
 		r = b = a = 1.0f;
