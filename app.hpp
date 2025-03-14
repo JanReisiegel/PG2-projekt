@@ -43,19 +43,6 @@ private:
     int frames;
     std::chrono::steady_clock::time_point frame_time;
     GLFWwindow* window;
-    //budeme mazat
-    GLuint shader_prog_ID{ 0 };
-    GLuint vao_ID{ 0 };
-    GLuint vbo_ID{ 0 };
-    GLfloat r{ 1.0f }, g{ 0.0f }, b{ 0.0f }, a{ 1.0f };
-    std::vector<Vertex> triangle_vertices =
-    {
-        {{0.0f,  0.5f,  0.0f}},
-        {{0.5f, -0.5f,  0.0f}},
-        {{-0.5f, -0.5f,  0.0f}}
-    };
-    //konec mazání
-
 
     void getInfo(GLenum, const std::string&, bool);
     void getFPS();
