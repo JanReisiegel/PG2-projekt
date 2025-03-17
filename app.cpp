@@ -146,6 +146,7 @@ int App::run(void)
 
 
 			double deltaT = glfwGetTime() - lastFrameTime;
+
 			camera.ProcessInput(window, deltaT);
 			lastFrameTime = glfwGetTime();
 
