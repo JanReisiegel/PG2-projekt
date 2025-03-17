@@ -120,24 +120,37 @@ int App::run(void)
         // You can only set uniforms AFTER shader compile 
         //
         
+        //int width, height;
+        //glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
+
+        //if (height <= 0) // avoid division by 0
+        //    height = 1;
+
+        ////float ratio = static_cast<float>(width) / height;
+
+        ////projectionMatrix = glm::perspective(
+        ////    glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+        ////    ratio,			     // Aspect Ratio. Depends on the size of your window.
+        ////    0.5f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+        ////    200.0f              // Far clipping plane. Keep as little as possible.
+        ////);
+        ////
+        //// set viewport
+        ////
+        //glViewport(0, 0, width, height);
+
         int width, height;
-        glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
+        glfwGetFramebufferSize(window, &width, &height);
+        fbsize_callback(window, width, height);
 
-        if (height <= 0) // avoid division by 0
-            height = 1;
-
-        float ratio = static_cast<float>(width) / height;
-
-        projectionMatrix = glm::perspective(
-            glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
-            ratio,			     // Aspect Ratio. Depends on the size of your window.
-            0.5f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-            200.0f              // Far clipping plane. Keep as little as possible.
-        );
-        //
-        // set viewport
-        //
-        glViewport(0, 0, width, height);
+        std::cout << "Projection Matrix in app:" << std::endl;
+        for (int i = 0; i < 4; i++) {
+            std::cout << "| ";
+            for (int j = 0; j < 4; j++) {
+                std::cout << projectionMatrix[i][j] << " ";
+            }
+            std::cout << "|" << std::endl;
+        }
 
         while (!glfwWindowShouldClose(window))
         {
@@ -149,7 +162,18 @@ int App::run(void)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-                //model.second.shader.setUniform("uP_m", projectionMatrix);
+                //glm::mat4 m = projectionMatrix;
+                //std::stringstream ss;
+                //ss << std::fixed << std::setprecision(4);
+                //for (int i = 0; i < 4; ++i) {
+                //    ss << "| ";
+                //    for (int j = 0; j < 4; ++j) {
+                //        ss << m[j][i] << " ";  // GLM is column-major
+                //    }
+                //    ss << "|\n";
+                //}
+                //std::cout << ss.str();
+                model.second.shader.setUniform("uP_m", projectionMatrix);
                 model.second.shader.setUniform("ucolor", ourRGBA);
                 model.second.draw();
 			}
