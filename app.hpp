@@ -28,6 +28,7 @@
 #include "callbacks.hpp"
 #include "assets.hpp"
 #include "Model.hpp"
+#include "camera.hpp"
 
 class App {
 public:
@@ -53,11 +54,18 @@ private:
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
 	static void fbsize_callback(GLFWwindow*, int, int);
+	static void cursor_position_callback(GLFWwindow*, double, double);
 protected:
     std::unordered_map<std::string, Model> scene;
     glm::mat4 projectionMatrix = glm::identity<glm::mat4>();
     int width{ 0 }, height{ 0 };
 	float fieldOfView{ 60.0f };
-	ShaderProgram globalShader;
+    ShaderProgram globalShader;
+
+    // camera related 
+    Camera camera{ glm::vec3(0.0f, 0.0f, 1000.0f) };
+    // remember last cursor position, move relative to that in the next frame
+    double cursorLastX{ 0 };
+    double cursorLastY{ 0 };
 };
 

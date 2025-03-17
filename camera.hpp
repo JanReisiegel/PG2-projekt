@@ -16,6 +16,8 @@ public:
     GLfloat MovementSpeed = 1.0f;
     GLfloat MouseSensitivity = 0.25f;
 
+	glm::vec3 WorldUp;
+
     Camera(glm::vec3 position):Position(position)
     {
         this->WorldUp = glm::vec3(0.0f,1.0f,0.0f);
@@ -74,7 +76,7 @@ private:
         front.z = sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
 
         this->Front = glm::normalize(front);
-        this->Right = glm::normalize(glm::cross(this->Front, glm::vec3(0.0f,1.0f,0.0f));
+        this->Right = glm::normalize(glm::cross(this->Front, glm::vec3(0.0f,1.0f,0.0f)));
         this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
     }
 };

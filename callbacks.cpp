@@ -106,9 +106,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 }
 
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+void App::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	//std::cout << "Mouse moved to: " << xpos << ", " << ypos << std::endl;
+	auto app = static_cast<App*>(glfwGetWindowUserPointer(window));
+
+	app->camera.ProcessMouseMovement(xpos - app->cursorLastX, (ypos - app->cursorLastY) * -1.0);
+	app->cursorLastX = xpos;
+	app->cursorLastY = ypos;
 }
 
 void App::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

@@ -102,12 +102,28 @@ int App::run(void)
 {
     try {
         // app code
+
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
+
+
        
 		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
 
 		update_projection_matrix();
 		glViewport(0, 0, width, height);
+
+		camera = Camera(glm::vec3(0.0f, 0.0f, 1000.0f));
+		double lastFrameTime = glfwGetTime();
+
+		globalShader.activate();
+
+
+
 
         /*std::cout << "Projection Matrix in app:" << std::endl;
         for (int i = 0; i < 4; i++) {
@@ -128,6 +144,12 @@ int App::run(void)
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+			double deltaT = glfwGetTime() - lastFrameTime;
+			camera.ProcessInput(window, deltaT);
+			lastFrameTime = glfwGetTime();
+
+
             glm::mat4 v_m = glm::lookAt(
                 glm::vec3(0, 0, 1000), // position of camera
                 glm::vec3(0, 0, 0),    // where to look
@@ -136,8 +158,8 @@ int App::run(void)
 
             // set uniforms for shader - common for all objects (do not set for each object individually, they use same shader anyway)
             
-			globalShader.setUniform("uP_m", projectionMatrix);
-			globalShader.setUniform("uV_m", v_m);
+			//globalShader.setUniform("uP_m", projectionMatrix);
+			//globalShader.setUniform("uV_m", v_m);
 
             for (auto model : scene) {
                 model.second.shader.setUniform("ucolor", ourRGBA);
@@ -261,7 +283,6 @@ void App::getFPS() {
 
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
-    my_shader_program.activate();
 
 	globalShader = my_shader_program;
 	
