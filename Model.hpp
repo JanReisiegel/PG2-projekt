@@ -14,7 +14,7 @@ public:
     std::vector<Mesh> meshes;
     std::string name;
     glm::vec3 origin{};
-	glm::vec3 scale{};
+	glm::vec3 scale{1.0f};
 	glm::mat4 local_model_matrix{1.0f};
     glm::vec3 orientation{};
 	ShaderProgram shader; //{0};

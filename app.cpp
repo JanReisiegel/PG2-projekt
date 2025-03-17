@@ -119,6 +119,7 @@ int App::run(void)
         // Create and set projection matrix
         // You can only set uniforms AFTER shader compile 
         //
+        
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
 
@@ -130,8 +131,8 @@ int App::run(void)
         projectionMatrix = glm::perspective(
             glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
             ratio,			     // Aspect Ratio. Depends on the size of your window.
-            0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-            20000.0f              // Far clipping plane. Keep as little as possible.
+            0.5f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+            200.0f              // Far clipping plane. Keep as little as possible.
         );
         //
         // set viewport
@@ -148,8 +149,8 @@ int App::run(void)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto model : scene) {
-                model.second.shader.setUniform("ucolor", ourRGBA);
                 //model.second.shader.setUniform("uP_m", projectionMatrix);
+                model.second.shader.setUniform("ucolor", ourRGBA);
                 model.second.draw();
 			}
 
