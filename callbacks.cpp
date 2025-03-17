@@ -85,32 +85,15 @@ void error_callback(int error, const char* description)
 
 void App::fbsize_callback(GLFWwindow* window, int width, int height)
 {
-	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
-	glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
+	auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
+	this_inst->width = width;
+	this_inst->height = height;
 
-	if (height <= 0) // avoid division by 0
-		height = 1;
-
-	float ratio = static_cast<float>(width) / height;
-
-	glm::mat4 projectionMatrix_tmp = glm::perspective(
-		glm::radians(120.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
-		ratio,			     // Aspect Ratio. Depends on the size of your window.
-		0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-		20000.0f              // Far clipping plane. Keep as little as possible.
-	);
-	app_instance->projectionMatrix = projectionMatrix_tmp;
-
-	std::cout << "Projection Matrix in callback:" << std::endl;
-	for (int i = 0; i < 4; i++) {
-		std::cout << "| ";
-		for (int j = 0; j < 4; j++) {
-			std::cout << projectionMatrix_tmp[i][j] << " ";
-		}
-		std::cout << "|" << std::endl;
-	}
-
+	// set viewport
 	glViewport(0, 0, width, height);
+	//now your canvas has [0,0] in bottom left corner, and its size is [width x height] 
+
+	this_inst->update_projection_matrix();
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -130,8 +113,10 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 
 void App::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
-	//zmìnit GLfloat r na jinou hodnotu podle scrollu
-	//GLfloat tem_g = app_instance->g;
-	//app_instance->g= std::max(0.0f, std::min(1.0f, tem_g + (float)yoffset / 10.0f));
+	auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
+	this_inst->fieldOfView += 10 * yoffset; // yoffset is mostly +1 or -1; one degree difference in fov is not visible
+	this_inst->fieldOfView = std::clamp(this_inst->fieldOfView, 20.0f, 170.0f); // limit FOV to reasonable values...
+
+	this_inst->update_projection_matrix();
+
 }

@@ -102,55 +102,21 @@ int App::run(void)
 {
     try {
         // app code
-        //...
-
-
-        /*GLfloat r, g, b, a;
-		r = b = a = 1.0f;
-		g = 0.0f;*/
-		//glUseProgram(shader_prog_ID);
-
+       
 		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
-		/*if (uniform_color_location == -1)
-			throw std::runtime_error("uniform_Color not found!");*/
-            //
-        
-        // Create and set projection matrix
-        // You can only set uniforms AFTER shader compile 
-        //
-        
-        //int width, height;
-        //glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
 
-        //if (height <= 0) // avoid division by 0
-        //    height = 1;
+		update_projection_matrix();
+		glViewport(0, 0, width, height);
 
-        ////float ratio = static_cast<float>(width) / height;
-
-        ////projectionMatrix = glm::perspective(
-        ////    glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
-        ////    ratio,			     // Aspect Ratio. Depends on the size of your window.
-        ////    0.5f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-        ////    200.0f              // Far clipping plane. Keep as little as possible.
-        ////);
-        ////
-        //// set viewport
-        ////
-        //glViewport(0, 0, width, height);
-
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        fbsize_callback(window, width, height);
-
-        std::cout << "Projection Matrix in app:" << std::endl;
+        /*std::cout << "Projection Matrix in app:" << std::endl;
         for (int i = 0; i < 4; i++) {
             std::cout << "| ";
             for (int j = 0; j < 4; j++) {
                 std::cout << projectionMatrix[i][j] << " ";
             }
             std::cout << "|" << std::endl;
-        }
+        }*/
 
         while (!glfwWindowShouldClose(window))
         {
@@ -158,22 +124,22 @@ int App::run(void)
             // 
 			
              
+
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            glm::mat4 v_m = glm::lookAt(
+                glm::vec3(0, 0, 1000), // position of camera
+                glm::vec3(0, 0, 0),    // where to look
+                glm::vec3(0, 1, 0)     // up direction
+            );
+
+            // set uniforms for shader - common for all objects (do not set for each object individually, they use same shader anyway)
+            
+			globalShader.setUniform("uP_m", projectionMatrix);
+			globalShader.setUniform("uV_m", v_m);
+
             for (auto model : scene) {
-                //glm::mat4 m = projectionMatrix;
-                //std::stringstream ss;
-                //ss << std::fixed << std::setprecision(4);
-                //for (int i = 0; i < 4; ++i) {
-                //    ss << "| ";
-                //    for (int j = 0; j < 4; ++j) {
-                //        ss << m[j][i] << " ";  // GLM is column-major
-                //    }
-                //    ss << "|\n";
-                //}
-                //std::cout << ss.str();
-                model.second.shader.setUniform("uP_m", projectionMatrix);
                 model.second.shader.setUniform("ucolor", ourRGBA);
                 model.second.draw();
 			}
@@ -296,9 +262,25 @@ void App::getFPS() {
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
     my_shader_program.activate();
+
+	globalShader = my_shader_program;
 	
     Model my_model = Model("resources/triangle.obj", my_shader_program);
 
     scene.emplace("our_first_object", my_model);
     
+}
+
+void App::update_projection_matrix(void) {
+    if (height < 1)
+        height = 1;   // avoid division by 0
+
+    float ratio = static_cast<float>(width) / height;
+
+    projectionMatrix = glm::perspective(
+        glm::radians(fieldOfView),   // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+        ratio,               // Aspect Ratio. Depends on the size of your window.
+        0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+        20000.0f             // Far clipping plane. Keep as little as possible.
+    );
 }

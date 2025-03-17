@@ -48,12 +48,16 @@ private:
     void getFPS();
     void initGlew(void);
     void init_assets(void);
+    void update_projection_matrix(void);
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
 	static void fbsize_callback(GLFWwindow*, int, int);
 protected:
     std::unordered_map<std::string, Model> scene;
-    glm::mat4 projectionMatrix;
+    glm::mat4 projectionMatrix = glm::identity<glm::mat4>();
+    int width{ 0 }, height{ 0 };
+	float fieldOfView{ 60.0f };
+	ShaderProgram globalShader;
 };
 
