@@ -102,64 +102,14 @@ int App::run(void)
 {
     try {
         // app code
-        //...
 
-
-        /*GLfloat r, g, b, a;
-		r = b = a = 1.0f;
-		g = 0.0f;*/
-		//glUseProgram(shader_prog_ID);
-
-		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
-		/*if (uniform_color_location == -1)
-			throw std::runtime_error("uniform_Color not found!");*/
-            //
-        
-        // Create and set projection matrix
-        // You can only set uniforms AFTER shader compile 
-        //
-        
-        //int width, height;
-        //glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
-
-        //if (height <= 0) // avoid division by 0
-        //    height = 1;
-
-        ////float ratio = static_cast<float>(width) / height;
-
-        ////projectionMatrix = glm::perspective(
-        ////    glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
-        ////    ratio,			     // Aspect Ratio. Depends on the size of your window.
-        ////    0.5f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-        ////    200.0f              // Far clipping plane. Keep as little as possible.
-        ////);
-        ////
-        //// set viewport
-        ////
-        //glViewport(0, 0, width, height);
-
-        /*int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        fbsize_callback(window, width, height);
-
-        std::cout << "Projection Matrix in app:" << std::endl;
-        for (int i = 0; i < 4; i++) {
-            std::cout << "| ";
-            for (int j = 0; j < 4; j++) {
-                std::cout << projectionMatrix[i][j] << " ";
-            }
-            std::cout << "|" << std::endl;
-        }*/
 
         update_projection_matrix();
-        //glViewport(0, 0, width, height);
+        glViewport(0, 0, width, height);
 
         while (!glfwWindowShouldClose(window))
         {
-            // ... do_something();
-            // 
-			
              
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -171,17 +121,6 @@ int App::run(void)
             );
 
             for (auto model : scene) {
-                //glm::mat4 m = projectionMatrix;
-                //std::stringstream ss;
-                //ss << std::fixed << std::setprecision(4);
-                //for (int i = 0; i < 4; ++i) {
-                //    ss << "| ";
-                //    for (int j = 0; j < 4; ++j) {
-                //        ss << m[j][i] << " ";  // GLM is column-major
-                //    }
-                //    ss << "|\n";
-                //}
-                //std::cout << ss.str();
                 //model.second.shader.setUniform("uV_m", v_m);
                 //model.second.shader.setUniform("uP_m", projection_matrix);
                 model.second.shader.setUniform("ucolor", ourRGBA);
@@ -189,10 +128,6 @@ int App::run(void)
                 model.second.draw(glm::vec3(0.0f),
                     glm::vec3(0, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
-
-			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
-			//glBindVertexArray(vao_ID);
-			//glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -202,8 +137,6 @@ int App::run(void)
             
             //fps count
             App::getFPS();
-
-            //throw std::runtime_error("Message");
         }
     }
     catch (std::exception const& e) {
