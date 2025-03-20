@@ -52,8 +52,18 @@ private:
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
 	static void fbsize_callback(GLFWwindow*, int, int);
+    void update_projection_matrix(void);
+
 protected:
+    // projection related variables    
+    int width{ 0 }, height{ 0 };
+    float fov = 60.0f;
+    // store projection matrix here, update only on callbacks
+    glm::mat4 projection_matrix = glm::identity<glm::mat4>();
+
+
+
+    // all objects of the scene
     std::unordered_map<std::string, Model> scene;
-    glm::mat4 projectionMatrix;
 };
 

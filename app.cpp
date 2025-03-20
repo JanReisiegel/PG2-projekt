@@ -139,7 +139,7 @@ int App::run(void)
         ////
         //glViewport(0, 0, width, height);
 
-        int width, height;
+        /*int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         fbsize_callback(window, width, height);
 
@@ -150,7 +150,10 @@ int App::run(void)
                 std::cout << projectionMatrix[i][j] << " ";
             }
             std::cout << "|" << std::endl;
-        }
+        }*/
+
+        update_projection_matrix();
+        //glViewport(0, 0, width, height);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -160,6 +163,12 @@ int App::run(void)
              
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            glm::mat4 v_m = glm::lookAt(
+                glm::vec3(0, 0, 1000), // position of camera
+                glm::vec3(0, 0, 0),    // where to look
+                glm::vec3(0, 1, 0)     // up direction
+            );
 
             for (auto model : scene) {
                 //glm::mat4 m = projectionMatrix;
@@ -173,9 +182,12 @@ int App::run(void)
                 //    ss << "|\n";
                 //}
                 //std::cout << ss.str();
-                model.second.shader.setUniform("uP_m", projectionMatrix);
+                //model.second.shader.setUniform("uV_m", v_m);
+                //model.second.shader.setUniform("uP_m", projection_matrix);
                 model.second.shader.setUniform("ucolor", ourRGBA);
-                model.second.draw();
+                //model.second.draw();
+                model.second.draw(glm::vec3(0.0f),
+                    glm::vec3(0, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
 
 			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
@@ -301,4 +313,19 @@ void App::init_assets() {
 
     scene.emplace("our_first_object", my_model);
     
+}
+
+void App::update_projection_matrix(void)
+{
+    if (height < 1)
+        height = 1;   // avoid division by 0
+
+    float ratio = static_cast<float>(width) / height;
+
+    projection_matrix = glm::perspective(
+        glm::radians(fov),   // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+        ratio,               // Aspect Ratio. Depends on the size of your window.
+        0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+        20000.0f             // Far clipping plane. Keep as little as possible.
+    );
 }

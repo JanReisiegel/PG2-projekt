@@ -85,30 +85,15 @@ void error_callback(int error, const char* description)
 
 void App::fbsize_callback(GLFWwindow* window, int width, int height)
 {
-	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
-	glfwGetFramebufferSize(window, &width, &height);    // Get GL framebuffer size	
+	auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
+	this_inst->width = width;
+	this_inst->height = height;
 
-	if (height <= 0) // avoid division by 0
-		height = 1;
+	// set viewport
+	glViewport(0, 0, width, height);
+	//now your canvas has [0,0] in bottom left corner, and its size is [width x height] 
 
-	float ratio = static_cast<float>(width) / height;
-
-	glm::mat4 projectionMatrix_tmp = glm::perspective(
-		glm::radians(120.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
-		ratio,			     // Aspect Ratio. Depends on the size of your window.
-		0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-		20000.0f              // Far clipping plane. Keep as little as possible.
-	);
-	app_instance->projectionMatrix = projectionMatrix_tmp;
-
-	std::cout << "Projection Matrix in callback:" << std::endl;
-	for (int i = 0; i < 4; i++) {
-		std::cout << "| ";
-		for (int j = 0; j < 4; j++) {
-			std::cout << projectionMatrix_tmp[i][j] << " ";
-		}
-		std::cout << "|" << std::endl;
-	}
+	this_inst->update_projection_matrix();
 
 	glViewport(0, 0, width, height);
 }
