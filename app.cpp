@@ -103,10 +103,18 @@ int App::run(void)
     try {
         // app code
 
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
+
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
 
         update_projection_matrix();
-        glViewport(0, 0, width, height);
+        //glViewport(0, 0, width, height);
+
+        camera.Position = glm::vec3(0, 0, 0.2);
+        double last_frame_time = glfwGetTime();
 
         while (!glfwWindowShouldClose(window))
         {
@@ -114,19 +122,27 @@ int App::run(void)
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glm::mat4 v_m = glm::lookAt(
-                glm::vec3(0, 0, 1000), // position of camera
-                glm::vec3(0, 0, 0),    // where to look
-                glm::vec3(0, 1, 0)     // up direction
-            );
+            //########## react to user  ##########
+            double delta_t = glfwGetTime() - last_frame_time;// render time of the last frame 
+            last_frame_time = glfwGetTime();
+            camera.ProcessInput(window, delta_t); // process keys etc.
+
+
+            //glm::mat4 v_m = glm::lookAt(
+            //    glm::vec3(0, 0, 1000), // position of camera
+            //    glm::vec3(0, 0, 0),    // where to look
+            //    glm::vec3(0, 1, 0)     // up direction
+            //);
+
 
             for (auto model : scene) {
-                //model.second.shader.setUniform("uV_m", v_m);
+                model.second.shader.setUniform("uV_m", camera.GetViewMatrix());
                 //model.second.shader.setUniform("uP_m", projection_matrix);
+                //model.second.shader.setUniform("uV_m", v_m);
                 model.second.shader.setUniform("ucolor", ourRGBA);
-                //model.second.draw();
-                model.second.draw(glm::vec3(0.0f),
-                    glm::vec3(0, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
+                model.second.draw();
+                //model.second.draw(glm::vec3(0.0f),
+                //    glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
 
             // Swap front and back buffers

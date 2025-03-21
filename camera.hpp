@@ -7,6 +7,7 @@ public:
     glm::vec3 Front;
     glm::vec3 Right; 
     glm::vec3 Up; // camera local UP vector
+    glm::vec3 WorldUp;
 
     GLfloat Yaw = -90.0f;
     GLfloat Pitch =  0.0f;;
@@ -74,7 +75,7 @@ private:
         front.z = sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
 
         this->Front = glm::normalize(front);
-        this->Right = glm::normalize(glm::cross(this->Front, glm::vec3(0.0f,1.0f,0.0f));
+        this->Right = glm::normalize(glm::cross(this->Front, glm::vec3(0.0f,1.0f,0.0f)));
         this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
     }
 };

@@ -17,6 +17,15 @@
   <ItemGroup>
     <None Include="vcpkg.json" />
     <None Include="vcpkg-configuration.json" />
+    <None Include="resources\basic_core.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\basic_core.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\basic_uniform.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="callbacks.cpp">
@@ -58,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -56,7 +56,7 @@ private:
     static void cursor_position_callback(GLFWwindow*, double, double);
     void update_projection_matrix(void);
     // camera related 
-    Camera camera;
+    Camera camera{ glm::vec3(0, 0, 1000) };
     // remember last cursor position, move relative to that in the next frame
     double cursorLastX{ 0 };
     double cursorLastY{ 0 };
