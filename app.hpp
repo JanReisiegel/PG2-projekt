@@ -54,18 +54,24 @@ private:
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
 	static void fbsize_callback(GLFWwindow*, int, int);
-	static void cursor_position_callback(GLFWwindow*, double, double);
-protected:
-    std::unordered_map<std::string, Model> scene;
-    glm::mat4 projectionMatrix = glm::identity<glm::mat4>();
-    int width{ 0 }, height{ 0 };
-	float fieldOfView{ 60.0f };
-    ShaderProgram globalShader;
-
+    static void cursor_position_callback(GLFWwindow*, double, double);
+    void update_projection_matrix(void);
     // camera related 
-    Camera camera{ glm::vec3(0.0f, 0.0f, 1000.0f) };
+    Camera camera{ glm::vec3(0, 0, 1000) };
     // remember last cursor position, move relative to that in the next frame
     double cursorLastX{ 0 };
     double cursorLastY{ 0 };
+protected:
+    // projection related variables    
+    int width{ 0 }, height{ 0 };
+    float fov = 60.0f;
+    // store projection matrix here, update only on callbacks
+    glm::mat4 projection_matrix = glm::identity<glm::mat4>();
+
+
+
+    // all objects of the scene
+    std::unordered_map<std::string, Model> scene;
+
 };
 

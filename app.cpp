@@ -103,73 +103,48 @@ int App::run(void)
     try {
         // app code
 
-		glCullFace(GL_BACK);
-		glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
 
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
-
-
-       
-		//GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
 
-		update_projection_matrix();
-		glViewport(0, 0, width, height);
+        update_projection_matrix();
+        //glViewport(0, 0, width, height);
 
-		camera = Camera(glm::vec3(0.0f, 0.0f, 1000.0f));
-		double lastFrameTime = glfwGetTime();
-
-		globalShader.activate();
-
-
-
-
-        /*std::cout << "Projection Matrix in app:" << std::endl;
-        for (int i = 0; i < 4; i++) {
-            std::cout << "| ";
-            for (int j = 0; j < 4; j++) {
-                std::cout << projectionMatrix[i][j] << " ";
-            }
-            std::cout << "|" << std::endl;
-        }*/
+        camera.Position = glm::vec3(0, 0, 0.2);
+        double last_frame_time = glfwGetTime();
 
         while (!glfwWindowShouldClose(window))
         {
-            // ... do_something();
-            // 
-			
              
 
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-			double deltaT = glfwGetTime() - lastFrameTime;
+            //########## react to user  ##########
+            double delta_t = glfwGetTime() - last_frame_time;// render time of the last frame 
+            last_frame_time = glfwGetTime();
+            camera.ProcessInput(window, delta_t); // process keys etc.
 
-			camera.ProcessInput(window, deltaT);
-			lastFrameTime = glfwGetTime();
-
-
-            glm::mat4 v_m = glm::lookAt(
-                glm::vec3(0, 0, 1000), // position of camera
-                glm::vec3(0, 0, 0),    // where to look
-                glm::vec3(0, 1, 0)     // up direction
-            );
-
-            // set uniforms for shader - common for all objects (do not set for each object individually, they use same shader anyway)
-            
-			//globalShader.setUniform("uP_m", projectionMatrix);
-			//globalShader.setUniform("uV_m", v_m);
+            //glm::mat4 v_m = glm::lookAt(
+            //    glm::vec3(0, 0, 1000), // position of camera
+            //    glm::vec3(0, 0, 0),    // where to look
+            //    glm::vec3(0, 1, 0)     // up direction
+            //);
 
             for (auto model : scene) {
+                model.second.shader.setUniform("uV_m", camera.GetViewMatrix());
+                //model.second.shader.setUniform("uP_m", projection_matrix);
+                //model.second.shader.setUniform("uV_m", v_m);
+
                 model.second.shader.setUniform("ucolor", ourRGBA);
                 model.second.draw();
+                //model.second.draw(glm::vec3(0.0f),
+                //    glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
-
-			//glUniform4f(uniform_color_location, App::r, App::g, App::b, App::a);
-			//glBindVertexArray(vao_ID);
-			//glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -179,8 +154,6 @@ int App::run(void)
             
             //fps count
             App::getFPS();
-
-            //throw std::runtime_error("Message");
         }
     }
     catch (std::exception const& e) {
@@ -299,8 +272,9 @@ void App::update_projection_matrix(void) {
 
     float ratio = static_cast<float>(width) / height;
 
-    projectionMatrix = glm::perspective(
-        glm::radians(fieldOfView),   // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+    projection_matrix = glm::perspective(
+        glm::radians(fov),   // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+
         ratio,               // Aspect Ratio. Depends on the size of your window.
         0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
         20000.0f             // Far clipping plane. Keep as little as possible.

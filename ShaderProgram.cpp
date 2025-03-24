@@ -31,7 +31,6 @@ void ShaderProgram::setUniform(const std::string& name, const float val) {
 }
 
 void ShaderProgram::setUniform(const std::string& name, const int val) {
-	glUseProgram(ID);
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -42,7 +41,6 @@ void ShaderProgram::setUniform(const std::string& name, const int val) {
 
 void ShaderProgram::setUniform(const std::string& name, const glm::vec3 val) {
 	//statefull
-	glUseProgram(ID);
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -61,7 +59,6 @@ void ShaderProgram::setUniform(const std::string& name, const glm::vec4 in_vec4)
 }
 
 void ShaderProgram::setUniform(const std::string& name, const glm::mat3 val) {
-	glUseProgram(ID);
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -71,7 +68,6 @@ void ShaderProgram::setUniform(const std::string& name, const glm::mat3 val) {
 }
 
 void ShaderProgram::setUniform(const std::string& name, const glm::mat4 val) {
-	glUseProgram(ID);
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';

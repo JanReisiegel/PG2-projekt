@@ -7,6 +7,7 @@ public:
     glm::vec3 Front;
     glm::vec3 Right; 
     glm::vec3 Up; // camera local UP vector
+    glm::vec3 WorldUp;
 
     GLfloat Yaw = -90.0f;
     GLfloat Pitch =  0.0f;;
