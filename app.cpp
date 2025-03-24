@@ -119,8 +119,10 @@ int App::run(void)
         while (!glfwWindowShouldClose(window))
         {
              
+
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
             //########## react to user  ##########
             double delta_t = glfwGetTime() - last_frame_time;// render time of the last frame 
@@ -137,6 +139,7 @@ int App::run(void)
                 model.second.shader.setUniform("uV_m", camera.GetViewMatrix());
                 //model.second.shader.setUniform("uP_m", projection_matrix);
                 //model.second.shader.setUniform("uV_m", v_m);
+
                 model.second.shader.setUniform("ucolor", ourRGBA);
                 model.second.draw();
                 //model.second.draw(glm::vec3(0.0f),
@@ -254,7 +257,8 @@ void App::getFPS() {
 
 void App::init_assets() {
     ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
-    my_shader_program.activate();
+
+	globalShader = my_shader_program;
 	
     Model my_model = Model("resources/triangle.obj", my_shader_program);
 
@@ -262,8 +266,7 @@ void App::init_assets() {
     
 }
 
-void App::update_projection_matrix(void)
-{
+void App::update_projection_matrix(void) {
     if (height < 1)
         height = 1;   // avoid division by 0
 
@@ -271,6 +274,7 @@ void App::update_projection_matrix(void)
 
     projection_matrix = glm::perspective(
         glm::radians(fov),   // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90� (extra wide) and 30� (quite zoomed in)
+
         ratio,               // Aspect Ratio. Depends on the size of your window.
         0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
         20000.0f             // Far clipping plane. Keep as little as possible.

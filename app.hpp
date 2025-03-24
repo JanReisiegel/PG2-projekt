@@ -49,6 +49,7 @@ private:
     void getFPS();
     void initGlew(void);
     void init_assets(void);
+    void update_projection_matrix(void);
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
@@ -60,7 +61,6 @@ private:
     // remember last cursor position, move relative to that in the next frame
     double cursorLastX{ 0 };
     double cursorLastY{ 0 };
-
 protected:
     // projection related variables    
     int width{ 0 }, height{ 0 };
@@ -72,5 +72,6 @@ protected:
 
     // all objects of the scene
     std::unordered_map<std::string, Model> scene;
+
 };
 

@@ -123,4 +123,5 @@ void App::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	this_inst->fov = std::clamp(this_inst->fov, 20.0f, 170.0f); // limit FOV to reasonable values...
 
 	this_inst->update_projection_matrix();
+
 }
