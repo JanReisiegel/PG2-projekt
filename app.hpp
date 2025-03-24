@@ -36,6 +36,10 @@ public:
 
     bool init(void);
     int run(void);
+    glm::vec2 get_subtex_by_height(float);
+    glm::vec2 get_subtex_st(const int, const int);
+    void init_hm(void);
+    Mesh GenHeightMap(const cv::Mat&, const unsigned int);
 
     bool vsync;
 
@@ -77,6 +81,6 @@ protected:
 
     // all objects of the scene
     std::unordered_map<std::string, Model> scene;
-
+	//Mesh height_map;
 };
 

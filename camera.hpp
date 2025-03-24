@@ -9,6 +9,8 @@ public:
     glm::vec3 Up; // camera local UP vector
     glm::vec3 WorldUp;
 
+	GLfloat Height = 1.0f;
+
     GLfloat Yaw = -90.0f;
     GLfloat Pitch =  0.0f;;
     GLfloat Roll = 0.0f;

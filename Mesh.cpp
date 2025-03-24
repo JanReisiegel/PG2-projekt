@@ -112,3 +112,34 @@ void Mesh::clear(void) {
     vertices.clear();
     indices.clear();
 }
+
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint texture_id) :
+    vertices(vertices),
+    indices(indices),
+    texture_id(texture_id) {
+    
+    //Vao, Vbo, Ebo
+    glCreateVertexArrays(1, &VAO);
+
+    glCreateBuffers(1, &VBO);
+    glNamedBufferStorage(VBO, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    glCreateBuffers(1, &EBO);
+    glNamedBufferStorage(EBO, indices.size() * sizeof(GLuint), indices.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    glVertexArrayElementBuffer(VAO, EBO);
+
+    glEnableVertexArrayAttrib(VAO, 0);
+    glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
+    glVertexArrayAttribBinding(VAO, 0, 0);
+
+    glEnableVertexArrayAttrib(VAO, 1);
+    glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
+    glVertexArrayAttribBinding(VAO, 1, 0);
+
+    glEnableVertexArrayAttrib(VAO, 2);
+    glVertexArrayAttribFormat(VAO, 2, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
+    glVertexArrayAttribBinding(VAO, 2, 0);
+
+    glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
+}

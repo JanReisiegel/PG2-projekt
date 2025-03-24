@@ -41,6 +41,7 @@ public:
         GLuint const texture_id = 0);
         // TODO: create and initialize VAO, VBO, EBO and parameters;
 
+    Mesh(std::vector<Vertex>, std::vector<GLuint>, GLuint);
     
     void draw(glm::vec3 const& offset, glm::vec3 const& rotation);
 
