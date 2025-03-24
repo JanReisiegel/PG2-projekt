@@ -17,8 +17,6 @@ public:
     GLfloat MovementSpeed = 1.0f;
     GLfloat MouseSensitivity = 0.25f;
 
-	glm::vec3 WorldUp;
-
     Camera(glm::vec3 position):Position(position)
     {
         this->WorldUp = glm::vec3(0.0f,1.0f,0.0f);
