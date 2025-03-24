@@ -262,10 +262,12 @@ void App::init_assets() {
     Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
 
     GLuint mytex = textureInit("resources/box_rgb888.png");
-    my_model.texture_id = mytex;
+	my_model.meshes[0].texture_id = mytex;
+    //my_model.texture_id = mytex;
 
     scene.emplace("our_first_object", my_model);
     
+    cv::Mat mapa = cv::Mat(10, 25, CV_8U);
 }
 
 GLuint App::textureInit(const std::filesystem::path& filepath)

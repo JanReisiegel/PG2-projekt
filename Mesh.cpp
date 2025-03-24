@@ -79,6 +79,19 @@ void Mesh::draw(glm::mat4 const& model_matrix) {
     //
     shader.setUniform("uM_m", model_matrix);
 
+    int i = 0;
+    glBindTextureUnit(i, texture_id);
+
+    //send texture unit number to FS
+    GLint texLocation = glGetUniformLocation(shader.getProgramID(), "tex0");
+    if (texLocation != -1) {
+        glUniform1i(texLocation, i);
+    }
+    else {
+        std::cerr << "Warning: tex0 uniform not found!" << std::endl;
+    }
+    i++;
+
     glBindVertexArray(VAO);
     glDrawElements(primitive_type, indices.size(), GL_UNSIGNED_INT, 0);
 }

@@ -53,6 +53,8 @@ private:
     void update_projection_matrix(void);
     GLuint textureInit(const std::filesystem::path&);
     GLuint gen_tex(cv::Mat&);
+    uchar getmap(cv::Mat& map, int x, int y);
+    void genLabyrinth(cv::Mat& map);
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
@@ -63,6 +65,7 @@ private:
     // remember last cursor position, move relative to that in the next frame
     double cursorLastX{ 0 };
     double cursorLastY{ 0 };
+    cv::Mat mapa = cv::Mat(10, 25, CV_8U);
 protected:
     // projection related variables    
     int width{ 0 }, height{ 0 };
