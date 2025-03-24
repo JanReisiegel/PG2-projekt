@@ -271,6 +271,8 @@ void App::init_assets() {
 	//cv::imshow("mapa", mapa);
 	genLabyrinth(mapa);
 	//cv::imshow("mapa", mapa);
+
+    init_hm();
 }
 
 GLuint App::textureInit(const std::filesystem::path& filepath)
@@ -431,7 +433,7 @@ void App::init_hm(void)
 {
     // height map
     {
-        std::filesystem::path hm_file("heights.png");
+        std::filesystem::path hm_file("resources/heights.png");
         cv::Mat hmap = cv::imread(hm_file.string(), cv::IMREAD_GRAYSCALE);
 
         if (hmap.empty())
@@ -520,14 +522,37 @@ Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
             glm::vec3 n2 = glm::normalize(glm::cross(p2 - p0, p3 - p0)); // for p3
             glm::vec3 navg = glm::normalize(n1 + n2);                 // average for p0, p2 - common
 
+            Vertex v1;
+            v1.Position = p0;
+            v1.Normal = navg;
+            v1.TexCoords = tc0;
+            Vertex v2;
+            v2.Position = p1;
+            v2.Normal = n1;
+            v2.TexCoords = tc1;
+            Vertex v3;
+            v3.Position = p2;
+            v3.Normal = navg;
+            v3.TexCoords = tc2;
+            Vertex v4;
+            v4.Position = p3;
+            v4.Normal = n2;
+            v4.TexCoords = tc3;
+
             //place vertices and ST to mesh
-            vertices.emplace_back(Vertex(p0, navg, tc0));
-            vertices.emplace_back(Vertex(p1, n1, tc1));
-            vertices.emplace_back(Vertex(p2, navg, tc2));
-            vertices.emplace_back(Vertex(p3, n2, tc3));
+            vertices.emplace_back(v1);
+            vertices.emplace_back(v2);
+            vertices.emplace_back(v3);
+            vertices.emplace_back(v4);
 
             // place indices
-            indices.emplace_back(0, 1, 2, 0, 2, 3);
+            //indices.emplace_back(0, 1, 2, 0, 2, 3);
+            indices.emplace_back(0);
+            indices.emplace_back(1);
+            indices.emplace_back(2);
+            indices.emplace_back(0);
+            indices.emplace_back(2);
+            indices.emplace_back(3);
         }
     }
 
