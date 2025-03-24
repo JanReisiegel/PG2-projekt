@@ -140,10 +140,10 @@ int App::run(void)
                 //model.second.shader.setUniform("uP_m", projection_matrix);
                 //model.second.shader.setUniform("uV_m", v_m);
 
-                model.second.shader.setUniform("ucolor", ourRGBA);
-                model.second.draw();
+                //model.second.shader.setUniform("ucolor", ourRGBA);
+                //model.second.draw();
                 //model.second.draw(glm::vec3(0.0f),
-                //    glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
+                    //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
 
             // Swap front and back buffers
@@ -256,14 +256,32 @@ void App::getFPS() {
 }
 
 void App::init_assets() {
-    ShaderProgram my_shader_program = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
+    ShaderProgram my_shader_program = ShaderProgram("resources/tex.vert", "resources/tex.frag");
 
 	globalShader = my_shader_program;
 	
     Model my_model = Model("resources/triangle.obj", my_shader_program);
 
+    GLuint mytex = textureInit("resources/box_rgb888.png");
+    my_model.texture_id = mytex;
+
     scene.emplace("our_first_object", my_model);
     
+}
+
+GLuint App::textureInit(const std::filesystem::path& filepath)
+{
+    cv::Mat image = cv::imread(filepath.string(), cv::IMREAD_UNCHANGED);  // Read with (potential) Alpha
+    if (image.empty()) {
+        throw std::runtime_error("No texture in file: " + filepath.string());
+    }
+
+    // or print warning, and generate synthetic image with checkerboard pattern 
+    // using OpenCV and use as a texture replacement 
+
+    GLuint texture = gen_tex(image);
+
+    return texture;
 }
 
 void App::update_projection_matrix(void) {
@@ -279,4 +297,51 @@ void App::update_projection_matrix(void) {
         0.1f,                // Near clipping plane. Keep as big as possible, or you'll get precision issues.
         20000.0f             // Far clipping plane. Keep as little as possible.
     );
+}
+
+GLuint App::gen_tex(cv::Mat& image)
+{
+    GLuint ID = 0;
+
+    if (image.empty()) {
+        throw std::runtime_error("Image empty?\n");
+    }
+
+    // Generates an OpenGL texture object
+    glCreateTextures(GL_TEXTURE_2D, 1, &ID);
+
+    switch (image.channels()) {
+    case 3:
+        // Create and clear space for data - immutable format
+        glTextureStorage2D(ID, 1, GL_RGB8, image.cols, image.rows);
+        // Assigns the image to the OpenGL Texture object
+        glTextureSubImage2D(ID, 0, 0, 0, image.cols, image.rows, GL_BGR, GL_UNSIGNED_BYTE, image.data);
+        break;
+    case 4:
+        glTextureStorage2D(ID, 1, GL_RGBA8, image.cols, image.rows);
+        glTextureSubImage2D(ID, 0, 0, 0, image.cols, image.rows, GL_BGRA, GL_UNSIGNED_BYTE, image.data);
+        break;
+    default:
+        throw std::runtime_error("unsupported channel cnt. in texture:" + std::to_string(image.channels()));
+    }
+
+    // Configures the type of algorithm that is used to make the image smaller or bigger
+    // nearest neighbor - ugly & fast 
+    //glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  
+    //glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // bilinear - nicer & slower
+    //glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);    
+    //glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    // MIPMAP filtering + automatic MIPMAP generation - nicest, needs more memory. Notice: MIPMAP is only for image minifying.
+    glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // bilinear magnifying
+    glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // trilinear minifying
+    glGenerateTextureMipmap(ID);  //Generate mipmaps now.
+
+    // Configures the way the texture repeats
+    glTextureParameteri(ID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    return ID;
 }

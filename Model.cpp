@@ -146,15 +146,30 @@ void Model::draw(
 
 	glm::mat4 model_matrix = local_model_matrix * s * rz * ry * rx * t * m_s * m_rz * m_ry * m_rx * m_off;
 
+	
+        
 
 	// call draw() on mesh (all meshes)
 	for (auto& mesh : meshes) {
 		mesh.draw(model_matrix);
+		int i = 0;
+		glBindTextureUnit(i, texture_id);
+
+		//send texture unit number to FS
+		glUniform1i(glGetUniformLocation(shader.getProgramID(), "tex0"), i);
 	}
 }
 void Model::draw(glm::mat4 const& model_matrix) {
 	// draw all meshes
 	for (auto & mesh : meshes) {
 		mesh.draw(local_model_matrix * model_matrix);
+	}
+}
+
+void Model::clear(void) {
+	if (texture_id)
+	{
+		glDeleteTextures(1, &texture_id);
+		texture_id = 0;
 	}
 }

@@ -51,6 +51,8 @@ private:
     void initGlew(void);
     void init_assets(void);
     void update_projection_matrix(void);
+    GLuint textureInit(const std::filesystem::path&);
+    GLuint gen_tex(cv::Mat&);
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);

@@ -18,6 +18,7 @@ public:
 	glm::mat4 local_model_matrix{1.0f};
     glm::vec3 orientation{};
 	ShaderProgram shader; //{0};
+	GLuint texture_id{ 0 }; // texture id=0  means no texture
     
     Model(const std::filesystem::path& filename, ShaderProgram shader); //{
         // load mesh (all meshes) of the model, (in the future: load material of each mesh, load textures...)
@@ -43,5 +44,6 @@ public:
         std::vector < glm::vec2 >& out_uvs,
         std::vector < glm::vec3 >& out_normals
     );
+    void clear(void);
 };
 
