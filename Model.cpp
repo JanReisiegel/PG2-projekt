@@ -148,15 +148,22 @@ void Model::draw(
 
 	
         
-
+	int i = 0;
 	// call draw() on mesh (all meshes)
 	for (auto& mesh : meshes) {
 		mesh.draw(model_matrix);
-		int i = 0;
+
 		glBindTextureUnit(i, texture_id);
 
 		//send texture unit number to FS
-		glUniform1i(glGetUniformLocation(shader.getProgramID(), "tex0"), i);
+		GLint texLocation = glGetUniformLocation(shader.getProgramID(), "tex0");
+		if (texLocation != -1) {
+			glUniform1i(texLocation, i);
+		}
+		else {
+			std::cerr << "Warning: tex0 uniform not found!" << std::endl;
+		}
+		i++;
 	}
 }
 void Model::draw(glm::mat4 const& model_matrix) {

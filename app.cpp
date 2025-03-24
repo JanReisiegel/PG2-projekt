@@ -119,7 +119,6 @@ int App::run(void)
         while (!glfwWindowShouldClose(window))
         {
              
-
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -141,7 +140,7 @@ int App::run(void)
                 //model.second.shader.setUniform("uV_m", v_m);
 
                 //model.second.shader.setUniform("ucolor", ourRGBA);
-                //model.second.draw();
+                model.second.draw();
                 //model.second.draw(glm::vec3(0.0f),
                     //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
@@ -260,7 +259,7 @@ void App::init_assets() {
 
 	globalShader = my_shader_program;
 	
-    Model my_model = Model("resources/triangle.obj", my_shader_program);
+    Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
 
     GLuint mytex = textureInit("resources/box_rgb888.png");
     my_model.texture_id = mytex;
@@ -342,6 +341,5 @@ GLuint App::gen_tex(cv::Mat& image)
     // Configures the way the texture repeats
     glTextureParameteri(ID, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
     return ID;
 }
