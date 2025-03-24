@@ -127,13 +127,11 @@ int App::run(void)
             last_frame_time = glfwGetTime();
             camera.ProcessInput(window, delta_t); // process keys etc.
 
-
             //glm::mat4 v_m = glm::lookAt(
             //    glm::vec3(0, 0, 1000), // position of camera
             //    glm::vec3(0, 0, 0),    // where to look
             //    glm::vec3(0, 1, 0)     // up direction
             //);
-
 
             for (auto model : scene) {
                 model.second.shader.setUniform("uV_m", camera.GetViewMatrix());
