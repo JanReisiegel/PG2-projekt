@@ -268,6 +268,9 @@ void App::init_assets() {
     scene.emplace("our_first_object", my_model);
     
     cv::Mat mapa = cv::Mat(10, 25, CV_8U);
+	//cv::imshow("mapa", mapa);
+	genLabyrinth(mapa);
+	//cv::imshow("mapa", mapa);
 }
 
 GLuint App::textureInit(const std::filesystem::path& filepath)
@@ -344,4 +347,192 @@ GLuint App::gen_tex(cv::Mat& image)
     glTextureParameteri(ID, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_REPEAT);
     return ID;
+}
+
+uchar App::getmap(cv::Mat& map, int x, int y)
+{
+    x = std::clamp(x, 0, map.cols);
+    y = std::clamp(y, 0, map.rows);
+
+    //at(row,col)!!!
+    return map.at<uchar>(y, x);
+}
+
+// Random map gen
+void App::genLabyrinth(cv::Mat& map) {
+    cv::Point2i start_position, end_position;
+
+    // C++ random numbers
+    std::random_device r; // Seed with a real random value, if available
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<int> uniform_height(1, map.rows - 2); // uniform distribution between int..int
+    std::uniform_int_distribution<int> uniform_width(1, map.cols - 2);
+    std::uniform_int_distribution<int> uniform_block(0, 15); // how often are walls generated: 0=wall, anything else=empty
+
+    //inner maze 
+    for (int j = 0; j < map.rows; j++) {
+        for (int i = 0; i < map.cols; i++) {
+            switch (uniform_block(e1))
+            {
+            case 0:
+                map.at<uchar>(cv::Point(i, j)) = '#';
+                break;
+            default:
+                map.at<uchar>(cv::Point(i, j)) = '.';
+                break;
+            }
+        }
+    }
+
+    //walls
+    for (int i = 0; i < map.cols; i++) {
+        map.at<uchar>(cv::Point(i, 0)) = '#';
+        map.at<uchar>(cv::Point(i, map.rows - 1)) = '#';
+    }
+    for (int j = 0; j < map.rows; j++) {
+        map.at<uchar>(cv::Point(0, j)) = '#';
+        map.at<uchar>(cv::Point(map.cols - 1, j)) = '#';
+    }
+
+    //gen start_position inside maze (excluding walls)
+    do {
+        start_position.x = uniform_width(e1);
+        start_position.y = uniform_height(e1);
+    } while (getmap(map, start_position.x, start_position.y) == '#'); //check wall
+
+    //gen end different from start, inside maze (excluding outer walls) 
+    do {
+        end_position.x = uniform_width(e1);
+        end_position.y = uniform_height(e1);
+    } while (start_position == end_position); //check overlap
+    map.at<uchar>(cv::Point(end_position.x, end_position.y)) = 'e';
+
+    std::cout << "Start: " << start_position << std::endl;
+    std::cout << "End: " << end_position << std::endl;
+
+    //print map
+    for (int j = 0; j < map.rows; j++) {
+        for (int i = 0; i < map.cols; i++) {
+            if ((i == start_position.x) && (j == start_position.y))
+                std::cout << 'X';
+            else
+                std::cout << getmap(map, i, j);
+        }
+        std::cout << std::endl;
+    }
+
+    //set player position in 3D space (transform X-Y in map to XYZ in GL)
+    camera.Position.x = (start_position.x) + 1.0 / 2.0f;
+    camera.Position.z = (start_position.y) + 1.0 / 2.0f;
+    camera.Position.y = camera.Height;
+}
+
+void App::init_hm(void)
+{
+    // height map
+    {
+        std::filesystem::path hm_file("heights.png");
+        cv::Mat hmap = cv::imread(hm_file.string(), cv::IMREAD_GRAYSCALE);
+
+        if (hmap.empty())
+            throw std::runtime_error("ERR: Height map empty? File: " + hm_file.string());
+
+        Mesh height_map = GenHeightMap(hmap, 10); //image, step size
+        std::cout << "Note: height map vertices: " << height_map.vertices.size() << std::endl;
+    }
+}
+
+//return bottom left ST coordinate of subtexture
+glm::vec2 App::get_subtex_st(const int x, const int y)
+{
+    return glm::vec2(x * 1.0f / 16, y * 1.0f / 16);
+}
+
+// choose subtexture based on height
+glm::vec2 App::get_subtex_by_height(float height)
+{
+    if (height > 0.9)
+        return get_subtex_st(2, 11); //snow
+    else if (height > 0.8)
+        return get_subtex_st(3, 11); //ice
+    else if (height > 0.5)
+        return get_subtex_st(0, 14); //rock
+    else if (height > 0.3)
+        return get_subtex_st(2, 15); //soil
+    else
+        return get_subtex_st(0, 11); //grass
+}
+
+Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
+{
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+
+    glm::vec3 v;
+    glm::vec4 c;
+
+    std::cout << "Note: heightmap size:" << hmap.size << ", channels: " << hmap.channels() << std::endl;
+
+    if (hmap.channels() != 1) {
+        std::cerr << "WARN: requested 1 channel, got: " << hmap.channels() << std::endl;
+    }
+
+    // Create heightmap mesh from TRIANGLES in XZ plane, Y is UP (right hand rule)
+    //
+    //   3-----2
+    //   |    /|
+    //   |  /  |
+    //   |/    |
+    //   0-----1
+    //
+    //   012,023
+    //
+
+    for (unsigned int x_coord = 0; x_coord < (hmap.cols - mesh_step_size); x_coord += mesh_step_size)
+    {
+        for (unsigned int z_coord = 0; z_coord < (hmap.rows - mesh_step_size); z_coord += mesh_step_size)
+        {
+            // Get The (X, Y, Z) Value For The Bottom Left Vertex = 0
+            glm::vec3 p0(x_coord, hmap.at<uchar>(cv::Point(x_coord, z_coord)), z_coord);
+            // Get The (X, Y, Z) Value For The Bottom Right Vertex = 1
+            glm::vec3 p1(x_coord + mesh_step_size, hmap.at<uchar>(cv::Point(x_coord + mesh_step_size, z_coord)), z_coord);
+            // Get The (X, Y, Z) Value For The Top Right Vertex = 2
+            glm::vec3 p2(x_coord + mesh_step_size, hmap.at<uchar>(cv::Point(x_coord + mesh_step_size, z_coord + mesh_step_size)), z_coord + mesh_step_size);
+            // Get The (X, Y, Z) Value For The Top Left Vertex = 3
+            glm::vec3 p3(x_coord, hmap.at<uchar>(cv::Point(x_coord, z_coord + mesh_step_size)), z_coord + mesh_step_size);
+
+            // Get max normalized height for tile, set texture accordingly
+            // Grayscale image returns 0..256, normalize to 0.0f..1.0f by dividing by 256
+            float max_h = std::max(hmap.at<uchar>(cv::Point(x_coord, z_coord)) / 256.0f,
+                std::max(hmap.at<uchar>(cv::Point(x_coord, z_coord + mesh_step_size)) / 256.0f,
+                    std::max(hmap.at<uchar>(cv::Point(x_coord + mesh_step_size, z_coord + mesh_step_size)) / 256.0f,
+                        hmap.at<uchar>(cv::Point(x_coord + mesh_step_size, z_coord)) / 256.0f
+                    )));
+
+            // Get texture coords in vertices, bottom left of geometry == bottom left of texture
+            glm::vec2 tc0 = get_subtex_by_height(max_h);
+            glm::vec2 tc1 = tc0 + glm::vec2(1.0f / 16, 0.0f);       //add offset for bottom right corner
+            glm::vec2 tc2 = tc0 + glm::vec2(1.0f / 16, 1.0f / 16);  //add offset for top right corner
+            glm::vec2 tc3 = tc0 + glm::vec2(0.0f, 1.0f / 16);       //add offset for bottom leftcorner
+
+            // normals for both triangles, CCW
+            glm::vec3 n1 = glm::normalize(glm::cross(p1 - p0, p2 - p0)); // for p1
+            glm::vec3 n2 = glm::normalize(glm::cross(p2 - p0, p3 - p0)); // for p3
+            glm::vec3 navg = glm::normalize(n1 + n2);                 // average for p0, p2 - common
+
+            //place vertices and ST to mesh
+            vertices.emplace_back(Vertex(p0, navg, tc0));
+            vertices.emplace_back(Vertex(p1, n1, tc1));
+            vertices.emplace_back(Vertex(p2, navg, tc2));
+            vertices.emplace_back(Vertex(p3, n2, tc3));
+
+            // place indices
+            indices.emplace_back(0, 1, 2, 0, 2, 3);
+        }
+    }
+
+    Mesh m(vertices, indices, textureInit("resources/tex_256.png"));
+    m.primitive_type = GL_TRIANGLES;
+
+    return m;
 }
