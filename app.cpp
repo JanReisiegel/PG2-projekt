@@ -556,7 +556,15 @@ void App::init_assets() {
     my_model.meshes[0].texture_id = mytex;
     //my_model.texture_id = mytex;
 
+    Model box = Model("resources/cube_triangles_vnt.obj", my_shader_program);
+    box.meshes[0].texture_id = mytex;
+
+    box.scale *= 2.0f;
+    box.origin.x = 3;
+    box.origin.z = 2;
+
     scene.emplace("our_first_object", my_model);
+    scene.emplace("boxing", box);
 
     cv::Mat mapa = cv::Mat(10, 25, CV_8U);
     //cv::imshow("mapa", mapa);
