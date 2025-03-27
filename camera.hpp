@@ -16,7 +16,8 @@ public:
     GLfloat Roll = 0.0f;
     
     // Camera options
-    GLfloat MovementSpeed = 1.0f;
+    GLfloat MovementSpeed = 1.2f;
+    GLfloat SprintMultiplier = 2.0f;
     GLfloat MouseSensitivity = 0.25f;
 
     Camera(glm::vec3 position):Position(position)
@@ -45,8 +46,27 @@ public:
             direction += -Right;       // add unit vector to final direction  
 
         //... right, up, down, diagonal, ... 
-            
-        return glm::normalize(direction) * MovementSpeed * deltaTime;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            direction += Right;
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+            direction += Up;
+
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            direction += -Up;
+
+        direction = glm::normalize(direction);
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            direction *= SprintMultiplier;
+
+        if (glm::length(direction) > 0)
+        {
+            Position += direction * MovementSpeed * deltaTime;
+        }
+
+        return direction * MovementSpeed * deltaTime;
     }
 
     void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constraintPitch = GL_TRUE)

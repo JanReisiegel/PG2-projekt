@@ -28,9 +28,12 @@ bool App::init()
 
         // open window (GL canvas) with no special properties
         // https://www.glfw.org/docs/latest/quick.html#quick_create_window
-        window = glfwCreateWindow(800, 600, "OpenGL context", NULL, NULL);
+        int window_width = 800;
+        int window_height = 600;
+        window = glfwCreateWindow(window_width, window_height, "OpenGL context", NULL, NULL);
         glfwMakeContextCurrent(window);
-
+        this->width = window_width;
+        this->height = window_height;
 
         // init glew
         // http://glew.sourceforge.net/basic.html
@@ -63,9 +66,8 @@ bool App::init()
 		
 
         if (GLEW_ARB_debug_output) {
-            glDebugMessageCallback(MessageCallback, 0);
             glEnable(GL_DEBUG_OUTPUT);
-            //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
             std::cout << "GL_DEBUG enabled." << std::endl;
         }
@@ -108,36 +110,32 @@ int App::run(void)
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
 
+
 		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
 
         update_projection_matrix();
-        //glViewport(0, 0, width, height);
+        glViewport(0, 0, width, height);
 
-        camera.Position = glm::vec3(0, 0, 0.2);
+        camera.Position = glm::vec3(0, 0, 5);
         double last_frame_time = glfwGetTime();
 
         while (!glfwWindowShouldClose(window))
         {
-             
+            double current_time = glfwGetTime();
+            double delta_t = current_time - last_frame_time;// render time of the last frame 
+            last_frame_time = current_time;
+
+
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
             //########## react to user  ##########
-            double delta_t = glfwGetTime() - last_frame_time;// render time of the last frame 
-            last_frame_time = glfwGetTime();
-            camera.ProcessInput(window, delta_t); // process keys etc.
-
-            //glm::mat4 v_m = glm::lookAt(
-            //    glm::vec3(0, 0, 1000), // position of camera
-            //    glm::vec3(0, 0, 0),    // where to look
-            //    glm::vec3(0, 1, 0)     // up direction
-            //);
+            camera.ProcessInput(window, delta_t);
 
             for (auto model : scene) {
                 model.second.shader.setUniform("uV_m", camera.GetViewMatrix());
-                //model.second.shader.setUniform("uP_m", projection_matrix);
-                //model.second.shader.setUniform("uV_m", v_m);
+                model.second.shader.setUniform("uP_m", projection_matrix);
 
                 //model.second.shader.setUniform("ucolor", ourRGBA);
                 model.second.draw();
@@ -252,27 +250,6 @@ void App::getFPS() {
         frames = 0;
         frame_time = now;
     }
-}
-
-void App::init_assets() {
-    ShaderProgram my_shader_program = ShaderProgram("resources/tex.vert", "resources/tex.frag");
-
-	globalShader = my_shader_program;
-	
-    Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
-
-    GLuint mytex = textureInit("resources/box_rgb888.png");
-	my_model.meshes[0].texture_id = mytex;
-    //my_model.texture_id = mytex;
-
-    scene.emplace("our_first_object", my_model);
-    
-    cv::Mat mapa = cv::Mat(10, 25, CV_8U);
-	//cv::imshow("mapa", mapa);
-	genLabyrinth(mapa);
-	//cv::imshow("mapa", mapa);
-
-    init_hm();
 }
 
 GLuint App::textureInit(const std::filesystem::path& filepath)
@@ -560,4 +537,31 @@ Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
     m.primitive_type = GL_TRIANGLES;
 
     return m;
+}
+
+
+
+
+
+
+
+void App::init_assets() {
+    ShaderProgram my_shader_program = ShaderProgram("resources/tex.vert", "resources/tex.frag");
+
+    globalShader = my_shader_program;
+
+    Model my_model = Model("resources/bunny_tri_vnt.obj", my_shader_program);
+
+    GLuint mytex = textureInit("resources/box_rgb888.png");
+    my_model.meshes[0].texture_id = mytex;
+    //my_model.texture_id = mytex;
+
+    scene.emplace("our_first_object", my_model);
+
+    cv::Mat mapa = cv::Mat(10, 25, CV_8U);
+    //cv::imshow("mapa", mapa);
+    genLabyrinth(mapa);
+    //cv::imshow("mapa", mapa);
+
+    init_hm();
 }
