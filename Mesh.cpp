@@ -129,17 +129,36 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint tex
 
     glVertexArrayElementBuffer(VAO, EBO);
 
-    glEnableVertexArrayAttrib(VAO, 0);
-    glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
-    glVertexArrayAttribBinding(VAO, 0, 0);
+	GLint positionAttributeLocation = glGetAttribLocation(shader.getProgramID(), "aPos");
+	std::cout << "Position attribute location: " << positionAttributeLocation << std::endl;
+	if (positionAttributeLocation == -1) {
+		throw std::runtime_error("Shader does not contain attribute aPosition");
+	}
+    glEnableVertexArrayAttrib(VAO, positionAttributeLocation);
+    glVertexArrayAttribFormat(VAO, positionAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
+    glVertexArrayAttribBinding(VAO, positionAttributeLocation, 0);
 
-    glEnableVertexArrayAttrib(VAO, 1);
-    glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
-    glVertexArrayAttribBinding(VAO, 1, 0);
+	GLint normalAttributeLocation = glGetAttribLocation(shader.getProgramID(), "aNorm");
+	if (normalAttributeLocation == -1) {
+        std::cerr << "Shader does not contain attribute aNormal";
+    }
+    else {
 
-    glEnableVertexArrayAttrib(VAO, 2);
-    glVertexArrayAttribFormat(VAO, 2, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
-    glVertexArrayAttribBinding(VAO, 2, 0);
+        glEnableVertexArrayAttrib(VAO, normalAttributeLocation);
+        glVertexArrayAttribFormat(VAO, normalAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
+        glVertexArrayAttribBinding(VAO, normalAttributeLocation, 0);
+    }
+
+	GLint textureAttributeLocation = glGetAttribLocation(shader.getProgramID(), "aTex");
+    if (textureAttributeLocation == -1) {
+		std::cerr << "Shader does not contain attribute aTexCoords";
+    }
+    else {
+        glEnableVertexArrayAttrib(VAO, textureAttributeLocation);
+        glVertexArrayAttribFormat(VAO, textureAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
+        glVertexArrayAttribBinding(VAO, textureAttributeLocation, 0);
+    }
+    
 
     glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
 }

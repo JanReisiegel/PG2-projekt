@@ -19,6 +19,7 @@ public:
     glm::vec3 orientation{};
 	ShaderProgram shader; //{0};
 	GLuint texture_id{ 0 }; // texture id=0  means no texture
+    bool transparent { false };
     
     Model(const std::filesystem::path& filename, ShaderProgram shader); //{
         // load mesh (all meshes) of the model, (in the future: load material of each mesh, load textures...)

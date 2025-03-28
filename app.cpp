@@ -85,11 +85,16 @@ bool App::init()
         glfwSetCursorPosCallback(window, cursor_position_callback);
         glfwSetScrollCallback(window, scroll_callback);
 
+
+
 		if (!GLEW_ARB_direct_state_access)
 			throw std::runtime_error("DSA not supported!");
         
         glEnable(GL_DEPTH_TEST);
         App::init_assets();
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthFunc(GL_LEQUAL);
     }
     catch (std::exception const& e) {
         throw std::runtime_error(e.what());
@@ -133,15 +138,42 @@ int App::run(void)
             //########## react to user  ##########
             camera.ProcessInput(window, delta_t);
 
-            for (auto model : scene) {
-                model.second.shader.setUniform("uV_m", camera.GetViewMatrix());
-                model.second.shader.setUniform("uP_m", projection_matrix);
+            std::vector<Model*> transparent;
+            transparent.reserve(scene.size());
 
+            for (auto& [name, model] : scene) {
+                model.shader.setUniform("uV_m", camera.GetViewMatrix());
+                model.shader.setUniform("uP_m", projection_matrix);
+                if (!model.transparent)
+                {
+                    model.draw();
+                }
+                else 
+					transparent.emplace_back(&model);
                 //model.second.shader.setUniform("ucolor", ourRGBA);
-                model.second.draw();
+                //model.draw();
                 //model.second.draw(glm::vec3(0.0f),
-                    //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
+                //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
+
+            std::sort(transparent.begin(), transparent.end(), [&](Model const* a, Model const* b) {
+                glm::vec3 translation_a = glm::vec3(a->local_model_matrix[3]);  // get 3 values from last column of model matrix = translation
+                glm::vec3 translation_b = glm::vec3(b->local_model_matrix[3]);  // dtto for model B
+                return glm::distance(camera.Position, translation_a) < glm::distance(camera.Position, translation_b); // sort by distance from camera
+                });
+
+            glEnable(GL_BLEND);
+			glDepthMask(GL_FALSE);
+			glDisable(GL_CULL_FACE);
+
+            // draw sorted transparent
+            for (auto p : transparent) {
+                p->draw();
+            }
+
+			glDisable(GL_BLEND);
+			glDepthMask(GL_TRUE);
+			glEnable(GL_CULL_FACE);
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -556,8 +588,9 @@ void App::init_assets() {
     my_model.meshes[0].texture_id = mytex;
     //my_model.texture_id = mytex;
 
-    Model box = Model("resources/cube_triangles_vnt.obj", my_shader_program);
-    box.meshes[0].texture_id = mytex;
+    Model box = Model("resources/triangle.obj", my_shader_program);
+    GLuint new_tex = textureInit("resources/tex_256.png");
+    box.meshes[0].texture_id = new_tex;
 
     box.scale *= 2.0f;
     box.origin.x = 3;
