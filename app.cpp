@@ -588,7 +588,7 @@ void App::init_assets() {
     my_model.meshes[0].texture_id = mytex;
     //my_model.texture_id = mytex;
 
-    Model box = Model("resources/triangle.obj", my_shader_program);
+    Model box = Model("resources/cube_triangles_vnt.obj", my_shader_program);
     GLuint new_tex = textureInit("resources/tex_256.png");
     box.meshes[0].texture_id = new_tex;
 
@@ -604,5 +604,5 @@ void App::init_assets() {
     genLabyrinth(mapa);
     //cv::imshow("mapa", mapa);
 
-    init_hm();
+    //init_hm();
 }
