@@ -147,7 +147,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint tex
 	if (normalAttributeLocation == -1) {
         std::cerr << "Shader does not contain attribute aNormal";
     }
-    else {
+    else
         glEnableVertexArrayAttrib(VAO, normalAttributeLocation);
         glVertexArrayAttribFormat(VAO, normalAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
         glVertexArrayAttribBinding(VAO, normalAttributeLocation, 0);
