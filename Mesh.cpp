@@ -147,17 +147,21 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint tex
 	if (normalAttributeLocation == -1) {
         std::cerr << "Shader does not contain attribute aNormal";
     }
-    glEnableVertexArrayAttrib(VAO, normalAttributeLocation);
-    glVertexArrayAttribFormat(VAO, normalAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
-    glVertexArrayAttribBinding(VAO, normalAttributeLocation, 0);
+    else {
+        glEnableVertexArrayAttrib(VAO, normalAttributeLocation);
+        glVertexArrayAttribFormat(VAO, normalAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
+        glVertexArrayAttribBinding(VAO, normalAttributeLocation, 0);
+    }
 
 	GLint textureAttributeLocation = glGetAttribLocation(shader.getProgramID(), "aTex");
     if (textureAttributeLocation == -1) {
 		std::cerr << "Shader does not contain attribute aTexCoords";
     }
-    glEnableVertexArrayAttrib(VAO, textureAttributeLocation);
-    glVertexArrayAttribFormat(VAO, textureAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
-    glVertexArrayAttribBinding(VAO, textureAttributeLocation, 0);
+    else {
+        glEnableVertexArrayAttrib(VAO, textureAttributeLocation);
+        glVertexArrayAttribFormat(VAO, textureAttributeLocation, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
+        glVertexArrayAttribBinding(VAO, textureAttributeLocation, 0);
+    }
     
 
     glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(Vertex));
