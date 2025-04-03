@@ -6,13 +6,15 @@ in VS_OUT
 
 uniform sampler2D tex0; // texture unit from C++
 
+uniform vec4 mycolor; // material color
+
 out vec4 FragColor; // final output
 
 void main()
 {
     // use only texture
-    FragColor = texture(tex0, fs_in.texcoord);
+    //FragColor = texture(tex0, fs_in.texcoord);
     
     // combine with material
-    // FragColor = mycolor * texture(tex0, fs_in.texcoord);    
+    FragColor = mycolor * texture(tex0, fs_in.texcoord);    
 }

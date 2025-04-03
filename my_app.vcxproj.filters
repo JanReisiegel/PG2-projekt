@@ -26,6 +26,12 @@
     <None Include="resources\basic_uniform.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="resources\tex.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\tex.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="callbacks.cpp">
@@ -72,5 +78,22 @@
     <ClInclude Include="camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\box.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\box_rgb888.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\heights.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\tex_256.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\TextureDouble_A.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

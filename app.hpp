@@ -55,8 +55,8 @@ private:
     void initGlew(void);
     void init_assets(void);
     void update_projection_matrix(void);
-    GLuint textureInit(const std::filesystem::path&);
-    GLuint gen_tex(cv::Mat&);
+    GLuint textureInit(const std::filesystem::path&, bool&);
+    GLuint gen_tex(cv::Mat&, bool&);
     uchar getmap(cv::Mat& map, int x, int y);
     void genLabyrinth(cv::Mat& map);
 

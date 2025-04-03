@@ -20,7 +20,7 @@ public:
 	ShaderProgram shader; //{0};
 	GLuint texture_id{ 0 }; // texture id=0  means no texture
     bool transparent { false };
-    
+    void addTexture(GLuint);
     Model(const std::filesystem::path& filename, ShaderProgram shader); //{
         // load mesh (all meshes) of the model, (in the future: load material of each mesh, load textures...)
         // TODO: call LoadOBJFile, LoadMTLFile (if exist), process data, create mesh and set its properties

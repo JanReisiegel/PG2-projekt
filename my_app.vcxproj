@@ -161,6 +161,8 @@
     <None Include="resources\basic_core.frag" />
     <None Include="resources\basic_core.vert" />
     <None Include="resources\basic_uniform.frag" />
+    <None Include="resources\tex.frag" />
+    <None Include="resources\tex.vert" />
     <None Include="vcpkg-configuration.json" />
     <None Include="vcpkg.json" />
   </ItemGroup>
@@ -181,6 +183,13 @@
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="ShaderProgram.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\box.png" />
+    <Image Include="resources\box_rgb888.png" />
+    <Image Include="resources\heights.png" />
+    <Image Include="resources\TextureDouble_A.png" />
+    <Image Include="resources\tex_256.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

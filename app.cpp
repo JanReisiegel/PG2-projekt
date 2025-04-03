@@ -116,7 +116,8 @@ int App::run(void)
         glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
 
 
-		glm::vec4 ourRGBA = { 0.3f, 1.0f, 0.6f, 1.0f };
+		glm::vec4 ourRGBA = { 1.0f, 1.0f, 1.0f, 0.5f };
+        glm::vec4 ourRGB = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         update_projection_matrix();
         glViewport(0, 0, width, height);
@@ -146,11 +147,13 @@ int App::run(void)
                 model.shader.setUniform("uP_m", projection_matrix);
                 if (!model.transparent)
                 {
+                    model.shader.setUniform("mycolor", ourRGB);
                     model.draw();
                 }
-                else 
-					transparent.emplace_back(&model);
-                //model.second.shader.setUniform("ucolor", ourRGBA);
+                else {
+                    transparent.emplace_back(&model);
+                    model.shader.setUniform("mycolor", ourRGBA);
+                }
                 //model.draw();
                 //model.second.draw(glm::vec3(0.0f),
                 //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
@@ -168,6 +171,7 @@ int App::run(void)
 
             // draw sorted transparent
             for (auto p : transparent) {
+				//std::cout << "Transparent: " << p->name << std::endl;
                 p->draw();
             }
 
@@ -284,7 +288,7 @@ void App::getFPS() {
     }
 }
 
-GLuint App::textureInit(const std::filesystem::path& filepath)
+GLuint App::textureInit(const std::filesystem::path& filepath, bool& out_transparent)
 {
     cv::Mat image = cv::imread(filepath.string(), cv::IMREAD_UNCHANGED);  // Read with (potential) Alpha
     if (image.empty()) {
@@ -294,7 +298,7 @@ GLuint App::textureInit(const std::filesystem::path& filepath)
     // or print warning, and generate synthetic image with checkerboard pattern 
     // using OpenCV and use as a texture replacement 
 
-    GLuint texture = gen_tex(image);
+    GLuint texture = gen_tex(image, out_transparent);
 
     return texture;
 }
@@ -314,7 +318,7 @@ void App::update_projection_matrix(void) {
     );
 }
 
-GLuint App::gen_tex(cv::Mat& image)
+GLuint App::gen_tex(cv::Mat& image, bool& out_transparent)
 {
     GLuint ID = 0;
 
@@ -327,12 +331,14 @@ GLuint App::gen_tex(cv::Mat& image)
 
     switch (image.channels()) {
     case 3:
+        out_transparent = false;
         // Create and clear space for data - immutable format
         glTextureStorage2D(ID, 1, GL_RGB8, image.cols, image.rows);
         // Assigns the image to the OpenGL Texture object
         glTextureSubImage2D(ID, 0, 0, 0, image.cols, image.rows, GL_BGR, GL_UNSIGNED_BYTE, image.data);
         break;
     case 4:
+        out_transparent = true;
         glTextureStorage2D(ID, 1, GL_RGBA8, image.cols, image.rows);
         glTextureSubImage2D(ID, 0, 0, 0, image.cols, image.rows, GL_BGRA, GL_UNSIGNED_BYTE, image.data);
         break;
@@ -564,8 +570,8 @@ Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
             indices.emplace_back(3);
         }
     }
-
-    Mesh m(vertices, indices, textureInit("resources/tex_256.png"));
+	bool transparent;
+    Mesh m(vertices, indices, textureInit("resources/tex_256.png", transparent));
     m.primitive_type = GL_TRIANGLES;
 
     return m;
@@ -578,26 +584,39 @@ Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
 
 
 void App::init_assets() {
+	bool transparent;
     ShaderProgram my_shader_program = ShaderProgram("resources/tex.vert", "resources/tex.frag");
 
     globalShader = my_shader_program;
 
     Model my_model = Model("resources/bunny_tri_vnt.obj", my_shader_program);
 
-    GLuint mytex = textureInit("resources/box_rgb888.png");
+    GLuint mytex = textureInit("resources/box_rgb888.png", transparent);
+	my_model.transparent = transparent;
     my_model.meshes[0].texture_id = mytex;
     //my_model.texture_id = mytex;
 
     Model box = Model("resources/cube_triangles_vnt.obj", my_shader_program);
-    GLuint new_tex = textureInit("resources/tex_256.png");
+    GLuint new_tex = textureInit("resources/tex_256.png", transparent);
+	box.transparent = transparent;
     box.meshes[0].texture_id = new_tex;
-
     box.scale *= 2.0f;
     box.origin.x = 3;
     box.origin.z = 2;
 
+    Model teapot = Model("resources/teapot_tri_vnt.obj", my_shader_program);
+    GLuint teapot_tex = textureInit("resources/TextureDouble_A.png", transparent);
+    teapot.transparent = true;
+    teapot.meshes[0].texture_id = teapot_tex;
+	std::cout << "Teapot texture: " << teapot_tex << std::endl;
+	teapot.origin.x = -5;
+	teapot.origin.z = 2;
+    box.scale *= 1.0f;
+
+
     scene.emplace("our_first_object", my_model);
     scene.emplace("boxing", box);
+	scene.emplace("teapot", teapot);
 
     cv::Mat mapa = cv::Mat(10, 25, CV_8U);
     //cv::imshow("mapa", mapa);
