@@ -22,6 +22,7 @@ public:
     bool transparent { false };
     void addTexture(GLuint);
     Model(const std::filesystem::path& filename, ShaderProgram shader); //{
+    Model(GLenum type, std::vector<Vertex> const& vertices, std::vector<GLuint> const& indices, ShaderProgram shader, GLuint const texture_id);
         // load mesh (all meshes) of the model, (in the future: load material of each mesh, load textures...)
         // TODO: call LoadOBJFile, LoadMTLFile (if exist), process data, create mesh and set its properties
         //    notice: you can load multiple meshes and place them to proper positions, 

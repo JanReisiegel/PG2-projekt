@@ -37,6 +37,17 @@ Model::Model(const std::filesystem::path& filename, ShaderProgram shader): shade
 	//draw();
 }
 
+Model::Model(GLenum type, std::vector<Vertex> const& vertices, std::vector<GLuint> const& indices, ShaderProgram shader, GLuint const texture_id):
+	shader(shader){
+
+	glm::vec3 origin{ 0,0,0 };
+	glm::vec3 orientation{ 0,0,0 };
+	
+	Mesh mesh = Mesh(GL_TRIANGLES, shader, vertices, indices, origin, orientation, texture_id);
+
+	meshes.push_back(mesh);
+}
+
 bool Model::LoadOBJFile(const char* path,
 	std::vector < glm::vec3 >& out_vertices,
 	std::vector < glm::vec2 >& out_uvs,
@@ -144,8 +155,8 @@ void Model::draw(
 	glm::mat4 m_rz = glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 m_s = glm::scale(glm::mat4(1.0f), scale_change);
 
-	glm::mat4 model_matrix = local_model_matrix * s * rz * ry * rx * t * m_s * m_rz * m_ry * m_rx * m_off;
-
+	glm::mat4 model_matrix = s * rz * ry * rx * t * m_s * m_rz * m_ry * m_rx * m_off;
+	local_model_matrix = model_matrix;
 	
         
 	// call draw() on mesh (all meshes)

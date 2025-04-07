@@ -38,8 +38,8 @@ public:
     int run(void);
     glm::vec2 get_subtex_by_height(float);
     glm::vec2 get_subtex_st(const int, const int);
-    void init_hm(void);
-    Mesh GenHeightMap(const cv::Mat&, const unsigned int);
+    Model init_hm(void);
+    Model GenHeightMap(const cv::Mat&, const unsigned int);
 
     bool vsync;
 

@@ -39,9 +39,8 @@ public:
         glm::vec3 const& origin, 
         glm::vec3 const& orientation, 
         GLuint const texture_id = 0);
-        // TODO: create and initialize VAO, VBO, EBO and parameters;
 
-    Mesh(std::vector<Vertex>, std::vector<GLuint>, GLuint);
+    Mesh(std::vector<Vertex>, std::vector<GLuint>, GLuint, ShaderProgram);
     
     void draw(glm::vec3 const& offset, glm::vec3 const& rotation);
 

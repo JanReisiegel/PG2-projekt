@@ -31,10 +31,8 @@ Mesh::Mesh(
     shader.activate();
 
     GLuint prog_h = shader.getProgramID();
-    std::cout << prog_h << std::endl;
 
     GLint positionAttributeLocation = glGetAttribLocation(prog_h, "aPos");
-    std::cout << "Position attribute location: " << positionAttributeLocation << std::endl;
     if (positionAttributeLocation == -1) {
         throw std::runtime_error("Shader does not contain attribute aPosition");
     }
@@ -44,7 +42,7 @@ Mesh::Mesh(
 
     GLint normalAttributeLocation = glGetAttribLocation(shader.getProgramID(), "aNorm");
     if (normalAttributeLocation == -1) {
-        std::cerr << "Shader does not contain attribute aNormal";
+        //std::cerr << "Shader does not contain attribute aNormal";
     }
     else {
 
@@ -136,10 +134,12 @@ void Mesh::clear(void) {
     indices.clear();
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint texture_id) :
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint texture_id, ShaderProgram shader) :
     vertices(vertices),
     indices(indices),
-    texture_id(texture_id) {
+    texture_id(texture_id),
+    shader(shader)
+    {
     
     //Vao, Vbo, Ebo
     glCreateVertexArrays(1, &VAO);
@@ -155,10 +155,10 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint tex
     shader.activate();
 
     GLuint prog_h = shader.getProgramID();
-    std::cout << prog_h << std::endl;
+    //std::cout << prog_h << std::endl;
 
 	GLint positionAttributeLocation = glGetAttribLocation(prog_h, "aPos");
-	std::cout << "Position attribute location: " << positionAttributeLocation << std::endl;
+	//std::cout << "Position attribute location: " << positionAttributeLocation << std::endl;
 	if (positionAttributeLocation == -1) {
 		throw std::runtime_error("Shader does not contain attribute aPosition");
 	}

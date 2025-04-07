@@ -116,8 +116,9 @@ int App::run(void)
         glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
 
 
-		glm::vec4 ourRGBA = { 1.0f, 1.0f, 1.0f, 0.5f };
+		glm::vec4 ourRGBA = { 0.0f, 0.0f, 1.0f, 0.5f };
         glm::vec4 ourRGB = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glm::vec4 green = { 0.0f, 1.0f, 0.0f, 0.5f };
 
         update_projection_matrix();
         glViewport(0, 0, width, height);
@@ -153,6 +154,9 @@ int App::run(void)
                 else {
                     transparent.emplace_back(&model);
                     model.shader.setUniform("mycolor", ourRGBA);
+                    //if (name.starts_with("slope")) {
+                    //    model.shader.setUniform("mycolor", green);
+                    //}
                 }
                 //model.draw();
                 //model.second.draw(glm::vec3(0.0f),
@@ -162,7 +166,7 @@ int App::run(void)
             std::sort(transparent.begin(), transparent.end(), [&](Model const* a, Model const* b) {
                 glm::vec3 translation_a = glm::vec3(a->local_model_matrix[3]);  // get 3 values from last column of model matrix = translation
                 glm::vec3 translation_b = glm::vec3(b->local_model_matrix[3]);  // dtto for model B
-                return glm::distance(camera.Position, translation_a) < glm::distance(camera.Position, translation_b); // sort by distance from camera
+                return glm::distance(camera.Position, translation_a) > glm::distance(camera.Position, translation_b); // sort by distance from camera
                 });
 
             glEnable(GL_BLEND);
@@ -171,7 +175,6 @@ int App::run(void)
 
             // draw sorted transparent
             for (auto p : transparent) {
-				//std::cout << "Transparent: " << p->name << std::endl;
                 p->draw();
             }
 
@@ -403,12 +406,12 @@ void App::genLabyrinth(cv::Mat& map) {
 
     //walls
     for (int i = 0; i < map.cols; i++) {
-        map.at<uchar>(cv::Point(i, 0)) = '#';
-        map.at<uchar>(cv::Point(i, map.rows - 1)) = '#';
+        map.at<uchar>(cv::Point(i, 0)) = '@';
+        map.at<uchar>(cv::Point(i, map.rows - 1)) = '@';
     }
     for (int j = 0; j < map.rows; j++) {
-        map.at<uchar>(cv::Point(0, j)) = '#';
-        map.at<uchar>(cv::Point(map.cols - 1, j)) = '#';
+        map.at<uchar>(cv::Point(0, j)) = '@';
+        map.at<uchar>(cv::Point(map.cols - 1, j)) = '@';
     }
 
     //gen start_position inside maze (excluding walls)
@@ -438,13 +441,50 @@ void App::genLabyrinth(cv::Mat& map) {
         std::cout << std::endl;
     }
 
+    //generate boxes
+    glm::vec4 green = { 0.0f, 1.0f, 0.0f, 0.5f };
+    //ShaderProgram slope_shader = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
+    ShaderProgram wall_shader = ShaderProgram("resources/tex.vert", "resources/tex.frag");
+    bool transparent;
+    int box_num = 0;
+    //for (int j = 0; j < map.rows; j++) {
+    //    for (int i = 0; i < map.cols; i++) {
+    //        if (getmap(map, i, j) == '#') {
+    //            Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
+    //            GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
+    //            box.meshes[0].texture_id = box_t;
+    //            box.transparent = false; //TODO: change to true someday
+    //            box.origin.x = i;
+    //            box.origin.z = j;
+    //            box.scale.y = 1;
+
+    //            //scene.emplace("slope" + std::to_string(box_num), box);
+    //            box_num += 1;
+    //        }
+    //        if (getmap(map, i, j) == '@') {
+    //            Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
+    //            GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
+    //            box.meshes[0].texture_id = box_t;
+    //            box.transparent = transparent;
+    //            box.origin.x = i;
+    //            box.origin.z = j;
+    //            box.scale.y = 2;
+
+    //            //scene.emplace("wall" + std::to_string(box_num), box);
+    //            box_num += 1;
+    //        }
+    //    }
+        //std::cout << std::endl;
+    //}
+
+
     //set player position in 3D space (transform X-Y in map to XYZ in GL)
     camera.Position.x = (start_position.x) + 1.0 / 2.0f;
     camera.Position.z = (start_position.y) + 1.0 / 2.0f;
     camera.Position.y = camera.Height;
 }
 
-void App::init_hm(void)
+Model App::init_hm(void)
 {
     // height map
     {
@@ -454,8 +494,9 @@ void App::init_hm(void)
         if (hmap.empty())
             throw std::runtime_error("ERR: Height map empty? File: " + hm_file.string());
 
-        Mesh height_map = GenHeightMap(hmap, 10); //image, step size
-        std::cout << "Note: height map vertices: " << height_map.vertices.size() << std::endl;
+        Model height_map = GenHeightMap(hmap, 10); //image, step size
+        std::cout << "Note: height map vertices: " << height_map.meshes[0].vertices.size() << std::endl;
+        return height_map;
     }
 }
 
@@ -480,7 +521,7 @@ glm::vec2 App::get_subtex_by_height(float height)
         return get_subtex_st(0, 11); //grass
 }
 
-Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
+Model App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
 {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
@@ -571,9 +612,9 @@ Mesh App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
         }
     }
 	bool transparent;
-    Mesh m(vertices, indices, textureInit("resources/tex_256.png", transparent));
-    m.primitive_type = GL_TRIANGLES;
-
+    ShaderProgram tex_shader = ShaderProgram("resources/tex.vert", "resources/tex.frag");
+    Model m = Model(GL_TRIANGLES, vertices, indices, tex_shader, textureInit("resources/tex_256.png", transparent));
+    m.transparent = false;
     return m;
 }
 
@@ -623,5 +664,6 @@ void App::init_assets() {
     genLabyrinth(mapa);
     //cv::imshow("mapa", mapa);
 
-    //init_hm();
+    //Model height_map = init_hm();
+    //scene.emplace("height_map", height_map);
 }
