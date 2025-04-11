@@ -32,6 +32,15 @@
     <None Include="resources\tex.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="config.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\directional.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\directional.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="callbacks.cpp">
@@ -76,6 +85,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="camera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

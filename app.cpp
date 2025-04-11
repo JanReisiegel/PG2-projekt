@@ -4,7 +4,10 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
+
 #include "app.hpp"
+#include "json.hpp"
+using json = nlohmann::json;
 
 GLFWwindow* window = nullptr; // move App class 
 
@@ -28,12 +31,13 @@ bool App::init()
 
         // open window (GL canvas) with no special properties
         // https://www.glfw.org/docs/latest/quick.html#quick_create_window
-        int window_width = 800;
-        int window_height = 600;
-        window = glfwCreateWindow(window_width, window_height, "OpenGL context", NULL, NULL);
+		load_json("config.json");
+        /*int window_width = 800;
+        int window_height = 600;*/
+        window = glfwCreateWindow(width, height, "OpenGL context", NULL, NULL);
         glfwMakeContextCurrent(window);
-        this->width = window_width;
-        this->height = window_height;
+        /*this->width = window_width;
+        this->height = window_height;*/
 
         // init glew
         // http://glew.sourceforge.net/basic.html
@@ -105,6 +109,49 @@ bool App::init()
     return true;
 }
 
+void App::load_json(const std::filesystem::path& json_file) {
+	// load json file
+	std::ifstream file(json_file);
+    if (!file.is_open()) {
+        std::cerr << "Nepodařilo se otevřít JSON soubor!" << std::endl;
+		height = 400;
+		width = 800;
+		vsync = false;
+        glfwWindowHint(GLFW_SAMPLES, 0);
+        std::cout << "Antialiasing disabled" << std::endl;
+        return;
+    }
+
+    json j;
+    file >> j;
+
+    width = j["window"]["width"];
+    height = j["window"]["height"];
+
+	bool antialiasing = j["antialiasing"]["enabled"];
+    int antialaising_level = j["antialiasing"]["samples"];
+    
+	if (antialiasing) {
+        if (antialaising_level <= 1)
+        {
+			std::cout << "Antialiasing level too low: <1" << std::endl;
+        }
+		else if (antialaising_level > 8)
+		{
+			std::cout << "Antialiasing level too high: >8" << std::endl;
+		}
+		glfwWindowHint(GLFW_SAMPLES, antialaising_level); // 4x antialiasing
+		std::cout << "Antialiasing enabled" << std::endl;
+	}
+	else {
+		glfwWindowHint(GLFW_SAMPLES, 0);
+		std::cout << "Antialiasing disabled" << std::endl;
+	}
+	vsync = j["vsync"];
+	file.close();
+
+}
+
 int App::run(void)
 {
     try {
@@ -116,15 +163,24 @@ int App::run(void)
         glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
 
 
-		glm::vec4 ourRGBA = { 0.0f, 0.0f, 1.0f, 0.5f };
+		/*glm::vec4 ourRGBA = { 0.0f, 0.0f, 1.0f, 0.5f };
         glm::vec4 ourRGB = { 1.0f, 1.0f, 1.0f, 1.0f };
-        glm::vec4 green = { 0.0f, 1.0f, 0.0f, 0.5f };
+        glm::vec4 green = { 0.0f, 1.0f, 0.0f, 0.5f };*/
 
         update_projection_matrix();
         glViewport(0, 0, width, height);
 
-        camera.Position = glm::vec3(0, 0, 5);
+        //camera.Position = glm::vec3(0, 0, 5);
         double last_frame_time = glfwGetTime();
+        for (auto& [name, model] : scene) {
+            model.shader.setUniform("ambient_intensity", glm::vec3(0.2, 0.2, 0.2));
+            model.shader.setUniform("diffuse_intensity", glm::vec3(0.8, 0.8, 0.8));
+            model.shader.setUniform("specular_intensity", glm::vec3(1.0, 1.0, 1.0));
+            model.shader.setUniform("ambient_material", glm::vec3(0.2, 0.2, 0.2));
+            model.shader.setUniform("diffuse_material", glm::vec3(1.0, 1.0, 1.0));
+            model.shader.setUniform("specular_material", glm::vec3(0.5, 0.5, 0.5));
+			model.shader.setUniform("specular_shinines", 32.0f);
+        }
 
         while (!glfwWindowShouldClose(window))
         {
@@ -148,7 +204,7 @@ int App::run(void)
                 model.shader.setUniform("uP_m", projection_matrix);
                 if (!model.transparent)
                 {
-                    model.shader.setUniform("mycolor", ourRGB);
+                    //model.shader.setUniform("mycolor", ourRGB);
                     model.draw();
                 }
                 else {
@@ -175,7 +231,7 @@ int App::run(void)
 
             // draw sorted transparent
             for (auto p : transparent) {
-                p->shader.setUniform("mycolor", ourRGBA);
+                //p->shader.setUniform("mycolor", ourRGBA);
                 p->draw();
             }
 
@@ -445,7 +501,7 @@ void App::genLabyrinth(cv::Mat& map) {
     //generate boxes
     glm::vec4 green = { 0.0f, 1.0f, 0.0f, 0.5f };
     //ShaderProgram slope_shader = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
-    ShaderProgram wall_shader = ShaderProgram("resources/tex.vert", "resources/tex.frag");
+    ShaderProgram wall_shader = ShaderProgram("resources/directional.vert", "resources/directional.frag");
     bool transparent;
     int box_num = 0;
     for (int j = 0; j < map.rows; j++) {
@@ -613,7 +669,7 @@ Model App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
         }
     }
 	bool transparent;
-    ShaderProgram tex_shader = ShaderProgram("resources/tex.vert", "resources/tex.frag");
+    ShaderProgram tex_shader = ShaderProgram("resources/dir.vert", "resources/tex.frag");
     Model m = Model(GL_TRIANGLES, vertices, indices, tex_shader, textureInit("resources/tex_256.png", transparent));
     m.transparent = false;
     return m;
@@ -627,7 +683,7 @@ Model App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
 
 void App::init_assets() {
 	bool transparent;
-    ShaderProgram my_shader_program = ShaderProgram("resources/tex.vert", "resources/tex.frag");
+    ShaderProgram my_shader_program = ShaderProgram("resources/directional.vert", "resources/directional.frag");
 
     globalShader = my_shader_program;
 
@@ -656,9 +712,9 @@ void App::init_assets() {
     box.scale *= 1.0f;
 
 
-    scene.emplace("our_first_object", my_model);
-    scene.emplace("boxing", box);
-	scene.emplace("teapot", teapot);
+    //scene.emplace("our_first_object", my_model);
+    //scene.emplace("boxing", box);
+	//scene.emplace("teapot", teapot);
 
     cv::Mat mapa = cv::Mat(10, 25, CV_8U);
     //cv::imshow("mapa", mapa);

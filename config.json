@@ -1,0 +1,21 @@
+{
+  "window": {
+    "width": 800,
+    "height": 600
+  },
+  "antialiasing": {
+    "enabled": true,
+    "samples": 4
+  },
+  "vsync": false,
+  "objects": [
+    {
+      "name": "cube",
+      "position": [ 0, 0, 0 ]
+    },
+    {
+      "name": "sphere",
+      "position": [ 1, 1, 1 ]
+    }
+  ]
+}

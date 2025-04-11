@@ -6,6 +6,8 @@
 #include <chrono>
 #include <stack>
 #include <random>
+#include <fstream>
+#include <string>
 
 // OpenCV (does not depend on GL)
 #include <opencv2\opencv.hpp>
@@ -59,6 +61,7 @@ private:
     GLuint gen_tex(cv::Mat&, bool&);
     uchar getmap(cv::Mat& map, int x, int y);
     void genLabyrinth(cv::Mat& map);
+	void load_json(const std::filesystem::path& json_file);
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);

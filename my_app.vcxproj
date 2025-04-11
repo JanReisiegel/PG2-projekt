@@ -161,8 +161,11 @@
     <None Include="resources\basic_core.frag" />
     <None Include="resources\basic_core.vert" />
     <None Include="resources\basic_uniform.frag" />
+    <None Include="resources\directional.frag" />
+    <None Include="resources\directional.vert" />
     <None Include="resources\tex.frag" />
     <None Include="resources\tex.vert" />
+    <None Include="config.json" />
     <None Include="vcpkg-configuration.json" />
     <None Include="vcpkg.json" />
   </ItemGroup>
@@ -180,6 +183,7 @@
     <ClInclude Include="callbacks.hpp" />
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="gl_err_callback.hpp" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="ShaderProgram.hpp" />
