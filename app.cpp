@@ -153,7 +153,7 @@ int App::run(void)
                 }
                 else {
                     transparent.emplace_back(&model);
-                    model.shader.setUniform("mycolor", ourRGBA);
+                    //model.shader.setUniform("mycolor", ourRGBA);
                     //if (name.starts_with("slope")) {
                     //    model.shader.setUniform("mycolor", green);
                     //}
@@ -175,6 +175,7 @@ int App::run(void)
 
             // draw sorted transparent
             for (auto p : transparent) {
+                p->shader.setUniform("mycolor", ourRGBA);
                 p->draw();
             }
 
@@ -378,7 +379,7 @@ uchar App::getmap(cv::Mat& map, int x, int y)
     return map.at<uchar>(y, x);
 }
 
-// Random map gen
+// Random  map gen
 void App::genLabyrinth(cv::Mat& map) {
     cv::Point2i start_position, end_position;
 
@@ -447,35 +448,35 @@ void App::genLabyrinth(cv::Mat& map) {
     ShaderProgram wall_shader = ShaderProgram("resources/tex.vert", "resources/tex.frag");
     bool transparent;
     int box_num = 0;
-    //for (int j = 0; j < map.rows; j++) {
-    //    for (int i = 0; i < map.cols; i++) {
-    //        if (getmap(map, i, j) == '#') {
-    //            Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
-    //            GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
-    //            box.meshes[0].texture_id = box_t;
-    //            box.transparent = false; //TODO: change to true someday
-    //            box.origin.x = i;
-    //            box.origin.z = j;
-    //            box.scale.y = 1;
+    for (int j = 0; j < map.rows; j++) {
+        for (int i = 0; i < map.cols; i++) {
+            if (getmap(map, i, j) == '#') {
+                Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
+                GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
+                box.meshes[0].texture_id = box_t;
+                box.transparent = false; //TODO: change to true someday
+                box.origin.x = i;
+                box.origin.z = j;
+                box.scale.y = 1;
 
-    //            //scene.emplace("slope" + std::to_string(box_num), box);
-    //            box_num += 1;
-    //        }
-    //        if (getmap(map, i, j) == '@') {
-    //            Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
-    //            GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
-    //            box.meshes[0].texture_id = box_t;
-    //            box.transparent = transparent;
-    //            box.origin.x = i;
-    //            box.origin.z = j;
-    //            box.scale.y = 2;
+                scene.emplace("slope" + std::to_string(box_num), box);
+                box_num += 1;
+            }
+            if (getmap(map, i, j) == '@') {
+                Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
+                GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
+                box.meshes[0].texture_id = box_t;
+                box.transparent = false;
+                box.origin.x = i;
+                box.origin.z = j;
+                box.scale.y = 2;
 
-    //            //scene.emplace("wall" + std::to_string(box_num), box);
-    //            box_num += 1;
-    //        }
-    //    }
-        //std::cout << std::endl;
-    //}
+                scene.emplace("wall" + std::to_string(box_num), box);
+                box_num += 1;
+            }
+        }
+        std::cout << std::endl;
+    }
 
 
     //set player position in 3D space (transform X-Y in map to XYZ in GL)
