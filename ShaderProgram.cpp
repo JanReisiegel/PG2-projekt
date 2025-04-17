@@ -58,6 +58,34 @@ void ShaderProgram::setUniform(const std::string& name, const glm::vec4 in_vec4)
 	glUniform4fv(loc, 1, glm::value_ptr(in_vec4));
 }
 
+void ShaderProgram::setUniform(const std::string& name, const std::array<glm::vec4, MAX_LIGHTS> & val) {
+	int i = 0;
+	for (auto& vec : val) {
+		std::string name2 = name + "[" + std::to_string(i) + "]";
+		setUniform(name2, vec);
+		i++;
+	}
+}
+
+void ShaderProgram::setUniform(const std::string& name, const std::array<glm::vec3, MAX_LIGHTS>& val) {
+	int i = 0;
+	for (auto& vec : val) {
+		std::string name2 = name + "[" + std::to_string(i) + "]";
+		setUniform(name2, vec);
+		i++;
+	}
+}
+
+void ShaderProgram::setUniform(const std::string& name, const std::array<float, MAX_LIGHTS>& val) {
+	int i = 0;
+	for (auto& vec : val) {
+		std::string name2 = name + "[" + std::to_string(i) + "]";
+		setUniform(name2, vec);
+		i++;
+	}
+}
+
+
 void ShaderProgram::setUniform(const std::string& name, const glm::mat3 val) {
 	GLint loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {

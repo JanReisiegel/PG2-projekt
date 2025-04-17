@@ -1,5 +1,19 @@
 #version 460 core
 
+#define MAX_LIGHTS 16
+
+struct s_lights {
+	vec4 position[MAX_LIGHTS];
+	vec3 color[MAX_LIGHTS];
+	vec3 ambient_intensity[MAX_LIGHTS];
+	vec3 diffuse_intensity[MAX_LIGHTS];
+	vec3 specular_intensity[MAX_LIGHTS];
+	vec3 ambient_material[MAX_LIGHTS];
+	vec3 diffuse_material[MAX_LIGHTS];
+	vec3 specular_material[MAX_LIGHTS];
+	float specular_shinines[MAX_LIGHTS];
+};
+
 // Vertex attributes
 in vec4 aPos;
 in vec3 aNorm;
@@ -9,6 +23,8 @@ in vec2 aTex;
 uniform mat4 uM_m;
 uniform mat4 uV_m;
 uniform mat4 uP_m;
+
+uniform s_lights lights;
 
 // Light properties
 uniform vec3 light_position = vec3(0.0,10.0,0.0);

@@ -2,8 +2,10 @@
 
 #include <string>
 #include <filesystem>
+#include <array>
 
-#include <GL/glew.h> 
+#include <GL/glew.h>
+#include "assets.hpp"
 
 class ShaderProgram {
 public:
@@ -27,6 +29,9 @@ public:
     void setUniform(const std::string & name, const int val);        // TODO: implement 
     void setUniform(const std::string & name, const glm::vec3 val);  
     void setUniform(const std::string & name, const glm::vec4 val);  // TODO: implement
+	void setUniform(const std::string & name, const std::array<glm::vec4, MAX_LIGHTS> & val);  // TODO: implement
+	void setUniform(const std::string& name, const std::array<glm::vec3, MAX_LIGHTS>& val);
+	void setUniform(const std::string& name, const std::array<float, MAX_LIGHTS>& val);
     void setUniform(const std::string & name, const glm::mat3 val);   
     void setUniform(const std::string & name, const glm::mat4 val);  // TODO: implement
     

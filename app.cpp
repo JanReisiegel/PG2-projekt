@@ -171,15 +171,55 @@ int App::run(void)
         glViewport(0, 0, width, height);
 
         //camera.Position = glm::vec3(0, 0, 5);
+        s_lights lights;
+		lights.position[0] = glm::vec4(10, 10, 0, 1);
+		lights.position[1] = glm::vec4(0, 10, 10, 1);
+		lights.position[2] = glm::vec4(10, 10, 10, 1);
+
+		lights.color[0] = glm::vec3(1, 0, 0);
+		lights.color[1] = glm::vec3(0, 1, 0);
+		lights.color[2] = glm::vec3(0, 0, 1);
+		lights.ambient_intensity[0] = glm::vec3(0.2, 0.2, 0.2);
+		lights.ambient_intensity[1] = glm::vec3(0.2, 0.2, 0.2);
+		lights.ambient_intensity[2] = glm::vec3(0.2, 0.2, 0.2);
+		lights.diffuse_intensity[0] = glm::vec3(0.8, 0.8, 0.8);
+		lights.diffuse_intensity[1] = glm::vec3(0.8, 0.8, 0.8);
+		lights.diffuse_intensity[2] = glm::vec3(0.8, 0.8, 0.8);
+		lights.specular_intensity[0] = glm::vec3(1.0, 1.0, 1.0);
+		lights.specular_intensity[1] = glm::vec3(1.0, 1.0, 1.0);
+		lights.specular_intensity[2] = glm::vec3(1.0, 1.0, 1.0);
+		lights.ambient_material[0] = glm::vec3(0.2, 0.2, 0.2);
+		lights.ambient_material[1] = glm::vec3(0.2, 0.2, 0.2);
+		lights.ambient_material[2] = glm::vec3(0.2, 0.2, 0.2);
+		lights.diffuse_material[0] = glm::vec3(1.0, 1.0, 1.0);
+		lights.diffuse_material[1] = glm::vec3(1.0, 1.0, 1.0);
+		lights.diffuse_material[2] = glm::vec3(1.0, 1.0, 1.0);
+		lights.specular_material[0] = glm::vec3(0.5, 0.5, 0.5);
+		lights.specular_material[1] = glm::vec3(0.5, 0.5, 0.5);
+		lights.specular_material[2] = glm::vec3(0.5, 0.5, 0.5);
+		lights.specular_shinines[0] = 32.0f;
+		lights.specular_shinines[1] = 32.0f;
+		lights.specular_shinines[2] = 32.0f;
+
         double last_frame_time = glfwGetTime();
         for (auto& [name, model] : scene) {
-            model.shader.setUniform("ambient_intensity", glm::vec3(0.2, 0.2, 0.2));
+            /*model.shader.setUniform("ambient_intensity", glm::vec3(0.2, 0.2, 0.2));
             model.shader.setUniform("diffuse_intensity", glm::vec3(0.8, 0.8, 0.8));
             model.shader.setUniform("specular_intensity", glm::vec3(1.0, 1.0, 1.0));
             model.shader.setUniform("ambient_material", glm::vec3(0.2, 0.2, 0.2));
             model.shader.setUniform("diffuse_material", glm::vec3(1.0, 1.0, 1.0));
             model.shader.setUniform("specular_material", glm::vec3(0.5, 0.5, 0.5));
-			model.shader.setUniform("specular_shinines", 32.0f);
+			model.shader.setUniform("specular_shinines", 32.0f);*/
+			model.shader.setUniform("lights.possition", lights.position);
+			model.shader.setUniform("lights.color", lights.color);
+			model.shader.setUniform("lights.ambient_intensity", lights.ambient_intensity);
+			model.shader.setUniform("lights.diffuse_intensity", lights.diffuse_intensity);
+			model.shader.setUniform("lights.specular_intensity", lights.specular_intensity);
+			model.shader.setUniform("lights.ambient_material", lights.ambient_material);
+			model.shader.setUniform("lights.diffuse_material", lights.diffuse_material);
+			model.shader.setUniform("lights.specular_material", lights.specular_material);
+			model.shader.setUniform("lights.specular_shinines", lights.specular_shinines);
+
         }
 
         while (!glfwWindowShouldClose(window))
