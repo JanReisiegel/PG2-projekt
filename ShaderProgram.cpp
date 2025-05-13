@@ -59,30 +59,31 @@ void ShaderProgram::setUniform(const std::string& name, const glm::vec4 in_vec4)
 }
 
 void ShaderProgram::setUniform(const std::string& name, const std::array<glm::vec4, MAX_LIGHTS> & val) {
-	int i = 0;
-	for (auto& vec : val) {
-		std::string name2 = name + "[" + std::to_string(i) + "]";
-		setUniform(name2, vec);
-		i++;
+	GLint loc = glGetUniformLocation(ID, name.c_str());
+	if (loc == -1) {
+		std::cerr << "no uniform with name:" << name << '\n';
+		return;
 	}
+	glUniform4fv(loc, MAX_LIGHTS, glm::value_ptr(val[0]));
+
 }
 
 void ShaderProgram::setUniform(const std::string& name, const std::array<glm::vec3, MAX_LIGHTS>& val) {
-	int i = 0;
-	for (auto& vec : val) {
-		std::string name2 = name + "[" + std::to_string(i) + "]";
-		setUniform(name2, vec);
-		i++;
+	GLint loc = glGetUniformLocation(ID, name.c_str());
+	if (loc == -1) {
+		std::cerr << "no uniform with name:" << name << '\n';
+		return;
 	}
+	glUniform3fv(loc, MAX_LIGHTS, glm::value_ptr(val[0]));
 }
 
 void ShaderProgram::setUniform(const std::string& name, const std::array<float, MAX_LIGHTS>& val) {
-	int i = 0;
-	for (auto& vec : val) {
-		std::string name2 = name + "[" + std::to_string(i) + "]";
-		setUniform(name2, vec);
-		i++;
+	GLint loc = glGetUniformLocation(ID, name.c_str());
+	if (loc == -1) {
+		std::cerr << "no uniform with name:" << name << '\n';
+		return;
 	}
+	glUniform1fv(loc, MAX_LIGHTS, val.data());
 }
 
 

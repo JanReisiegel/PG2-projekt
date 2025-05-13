@@ -9,7 +9,7 @@ struct Vertex {
     glm::vec2 TexCoords;
 };
 
-constexpr int MAX_LIGHTS = 10;
+constexpr int MAX_LIGHTS = 16;
 
 struct s_lights {
 	std::array<glm::vec4, MAX_LIGHTS> position;

@@ -171,7 +171,7 @@ int App::run(void)
         glViewport(0, 0, width, height);
 
         //camera.Position = glm::vec3(0, 0, 5);
-        s_lights lights;
+		s_lights lights = s_lights();
 		lights.position[0] = glm::vec4(10, 10, 0, 1);
 		lights.position[1] = glm::vec4(0, 10, 10, 1);
 		lights.position[2] = glm::vec4(10, 10, 10, 1);
@@ -210,7 +210,7 @@ int App::run(void)
             model.shader.setUniform("diffuse_material", glm::vec3(1.0, 1.0, 1.0));
             model.shader.setUniform("specular_material", glm::vec3(0.5, 0.5, 0.5));
 			model.shader.setUniform("specular_shinines", 32.0f);*/
-			model.shader.setUniform("lights.possition", lights.position);
+			model.shader.setUniform("lights.position", lights.position);
 			model.shader.setUniform("lights.color", lights.color);
 			model.shader.setUniform("lights.ambient_intensity", lights.ambient_intensity);
 			model.shader.setUniform("lights.diffuse_intensity", lights.diffuse_intensity);

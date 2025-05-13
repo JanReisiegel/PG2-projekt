@@ -108,9 +108,9 @@ void Mesh::draw(glm::mat4 const& model_matrix) {
     if (texLocation != -1) {
         glUniform1i(texLocation, i);
     }
-    else {
+    /*else {
         std::cerr << "Warning: tex0 uniform not found!" << std::endl;
-    }
+    }*/
     i++;
 
     glBindVertexArray(VAO);

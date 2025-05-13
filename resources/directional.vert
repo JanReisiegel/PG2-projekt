@@ -27,12 +27,12 @@ uniform mat4 uP_m;
 uniform s_lights lights;
 
 // Light properties
-uniform vec3 light_position = vec3(0.0,10.0,0.0);
+//uniform vec3 light_position = vec3(0.0,10.0,0.0);
 
 // Outputs to the fragment shader
 out VS_OUT {
     vec3 N;
-    vec3 L;
+    vec3 L[MAX_LIGHTS];
     vec3 V;
     vec2 texCoord;
 } vs_out;
@@ -45,12 +45,16 @@ void main(void) {
     // we are computing the color
     vec4 P = mv_m * aPos;
 
-    vec3 light_position_view = vec3(uV_m * vec4(light_position, 1.0));
+    
 
     // Calculate normal in view space
     vs_out.N = mat3(mv_m) * aNorm;
      // Calculate view-space light vector
-    vs_out.L = light_position_view - P.xyz;
+    for (int i = 0; i < lights.position.length(); i++) {
+        // Calculate light vector in view space
+        vec3 light_position_view = vec3(uV_m * lights.position[i]);
+        vs_out.L[i] = light_position_view - P.xyz;
+    }
     // Calculate view vector (negative of the view-space position)
     vs_out.V = -P.xyz;
 
