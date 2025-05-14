@@ -65,6 +65,7 @@ bool Model::LoadOBJFile(const char* path,
 	FILE* file;
 	fopen_s(&file, path, "r");
 	if (file == NULL) {
+		printf(path);
 		printf("Impossible to open the file !\n");
 		return false;
 	}

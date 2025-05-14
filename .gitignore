@@ -1,5 +1,5 @@
 # custom
-!resources/*.obj
+
 
 # Ignore build directories
 [Dd]ebug/
@@ -30,6 +30,8 @@
 *.dll
 *.lib
 *.pdb
+
+!resources/*.obj
 
 # Ignore dependencies
 /deps/
