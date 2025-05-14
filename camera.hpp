@@ -6,6 +6,8 @@ public:
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Right; 
+    glm::vec3 Forward;
+    glm::vec3 RightSide;
     glm::vec3 Up; // camera local UP vector
     glm::vec3 WorldUp;
 
@@ -37,24 +39,28 @@ public:
         glm::vec3 direction{0};
           
         if (glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS)
-            direction += Front;
+            direction += Forward;
 
         if (glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS)
-            direction += -Front;
+            direction += -Forward;
 
         if (glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS)
-            direction += -Right;       // add unit vector to final direction  
+            direction += -RightSide;       // add unit vector to final direction  
 
         //... right, up, down, diagonal, ... 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            direction += Right;
+            direction += RightSide;
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            direction += Up;
+            direction.y += 1.0f;
+
+        /*if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+
+        }*/
 
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            direction += -Up;
+            direction.y += -1.0f;
 
         direction = glm::normalize(direction);
 
@@ -87,12 +93,17 @@ private:
     void updateCameraVectors()
     {
         glm::vec3 front;
+        glm::vec3 forward;
         front.x = cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
         front.y = sin(glm::radians(this->Pitch));
         front.z = sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
+        forward = front;
+        forward.y = 0;
 
         this->Front = glm::normalize(front);
         this->Right = glm::normalize(glm::cross(this->Front, glm::vec3(0.0f,1.0f,0.0f)));
         this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
+        this->Forward = glm::normalize(forward);
+        this->RightSide = glm::normalize(glm::cross(this->Forward, glm::vec3(0.0f, 1.0f, 0.0f)));
     }
 };

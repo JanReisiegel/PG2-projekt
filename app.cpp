@@ -175,32 +175,40 @@ int App::run(void)
 		s_lights lights = s_lights();
 		lights.position[0] = glm::vec4(10, 10, 0, 1);
 		lights.position[1] = glm::vec4(0, 10, 10, 1);
-		lights.position[2] = glm::vec4(10, 10, 10, 1);
+		lights.position[2] = glm::vec4(0, 10, 0, 1);
 
 		lights.color[0] = glm::vec3(1, 1, 0);
 		lights.color[1] = glm::vec3(1, 1, 1);
 		lights.color[2] = glm::vec3(1, 1, 1);
+        lights.color[3] = glm::vec3(0.1, 0.4, 1);
 		lights.ambient_intensity[0] = glm::vec3(0.2, 0.2, 0.2);
 		lights.ambient_intensity[1] = glm::vec3(0.2, 0.2, 0.2);
 		lights.ambient_intensity[2] = glm::vec3(0.2, 0.2, 0.2);
+        lights.ambient_intensity[3] = glm::vec3(0.2, 0.2, 0.2);
 		lights.diffuse_intensity[0] = glm::vec3(0.8, 0.8, 0.8);
 		lights.diffuse_intensity[1] = glm::vec3(0.8, 0.8, 0.8);
 		lights.diffuse_intensity[2] = glm::vec3(0.8, 0.8, 0.8);
+        lights.diffuse_intensity[3] = glm::vec3(0.8, 0.8, 0.8);
 		lights.specular_intensity[0] = glm::vec3(1.0, 1.0, 1.0);
 		lights.specular_intensity[1] = glm::vec3(1.0, 1.0, 1.0);
 		lights.specular_intensity[2] = glm::vec3(1.0, 1.0, 1.0);
+        lights.specular_intensity[3] = glm::vec3(1.0, 1.0, 1.0);
 		lights.ambient_material[0] = glm::vec3(0.2, 0.2, 0.2);
 		lights.ambient_material[1] = glm::vec3(0.2, 0.2, 0.2);
 		lights.ambient_material[2] = glm::vec3(0.2, 0.2, 0.2);
+        lights.ambient_material[3] = glm::vec3(0.2, 0.2, 0.2);
 		lights.diffuse_material[0] = glm::vec3(1.0, 1.0, 1.0);
 		lights.diffuse_material[1] = glm::vec3(1.0, 1.0, 1.0);
 		lights.diffuse_material[2] = glm::vec3(1.0, 1.0, 1.0);
+        lights.diffuse_material[3] = glm::vec3(1.0, 1.0, 1.0);
 		lights.specular_material[0] = glm::vec3(0.5, 0.5, 0.5);
 		lights.specular_material[1] = glm::vec3(0.5, 0.5, 0.5);
 		lights.specular_material[2] = glm::vec3(0.5, 0.5, 0.5);
+        lights.specular_material[3] = glm::vec3(0.5, 0.5, 0.5);
 		lights.specular_shinines[0] = 32.0f;
 		lights.specular_shinines[1] = 32.0f;
 		lights.specular_shinines[2] = 32.0f;
+        lights.specular_shinines[3] = 32.0f;
 
         double last_frame_time = glfwGetTime();
         for (auto& [name, model] : scene) {
@@ -211,7 +219,6 @@ int App::run(void)
             model.shader.setUniform("diffuse_material", glm::vec3(1.0, 1.0, 1.0));
             model.shader.setUniform("specular_material", glm::vec3(0.5, 0.5, 0.5));
 			model.shader.setUniform("specular_shinines", 32.0f);*/
-            std::cout << name << " " << model.shader.getProgramID() << std::endl;
 			model.shader.setUniform("lights.position", lights.position);
 			model.shader.setUniform("lights.color", lights.color);
 			model.shader.setUniform("lights.ambient_intensity", lights.ambient_intensity);
@@ -288,6 +295,7 @@ int App::run(void)
                 }
                 lights.position[0].z = std::cos(angle) * 20.0f;
                 lights.position[0].y = std::sin(angle) * 20.0f;
+                lights.position[3] = glm::vec4(camera.Position, 1);
                 model.shader.setUniform("lights.position", lights.position);
                 angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
                 //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
@@ -519,7 +527,7 @@ void App::genLabyrinth(cv::Mat& map) {
     std::default_random_engine e1(r());
     std::uniform_int_distribution<int> uniform_height(1, map.rows - 2); // uniform distribution between int..int
     std::uniform_int_distribution<int> uniform_width(1, map.cols - 2);
-    std::uniform_int_distribution<int> uniform_block(0, 15); // how often are walls generated: 0=wall, anything else=empty
+    std::uniform_int_distribution<int> uniform_block(0, 10); // how often are walls generated: 0=wall, anything else=empty
 
     //inner maze 
     for (int j = 0; j < map.rows; j++) {
@@ -528,6 +536,9 @@ void App::genLabyrinth(cv::Mat& map) {
             {
             case 0:
                 map.at<uchar>(cv::Point(i, j)) = '#';
+                break;
+            case 1:
+                map.at<uchar>(cv::Point(i, j)) = 'w';
                 break;
             default:
                 map.at<uchar>(cv::Point(i, j)) = '.';
@@ -582,11 +593,20 @@ void App::genLabyrinth(cv::Mat& map) {
     int box_num = 0;
     for (int j = 0; j < map.rows; j++) {
         for (int i = 0; i < map.cols; i++) {
+            if (getmap(map, i, j) == 'w') {
+                Model grass1 = Model("resources/square.obj", wall_shader);
+                GLuint grass_tex = textureInit("resources/grass_tall.png", transparent);
+                grass1.meshes[0].texture_id = grass_tex;
+                grass1.transparent = true;
+                grass1.origin.x = i;
+                grass1.origin.z = j;
+                scene.emplace("grass" + std::to_string(box_num), grass1);
+            }
             if (getmap(map, i, j) == '#') {
                 Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
                 GLuint box_t = textureInit("resources/wall.jpg", transparent);
                 box.meshes[0].texture_id = box_t;
-                box.transparent = false; //TODO: change to true someday
+                box.transparent = false;
                 box.origin.x = i;
                 box.origin.z = j;
                 box.scale.y = 1;
@@ -788,10 +808,10 @@ void App::init_assets() {
     //box.scale *= 1.0f;
 
     Model floor = Model("resources/square.obj", my_shader_program);
-    GLuint floor_tex = textureInit("resources/floor.jpg", transparent);
+    GLuint floor_tex = textureInit("resources/grass_floor.jpg", transparent);
     floor.transparent = false;
     floor.meshes[0].texture_id = floor_tex;
-    floor.orientation.x = - 3.1415/2;
+    floor.orientation.x = - glm::radians(static_cast<float>(90));
     floor.scale.z += 20.0f;
     floor.scale.x += 30.0f;
     floor.origin.z -= 0.5f; //y level
