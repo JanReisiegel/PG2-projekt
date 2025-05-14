@@ -61,11 +61,6 @@ public:
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             direction *= SprintMultiplier;
 
-        if (glm::length(direction) > 0)
-        {
-            Position += direction * MovementSpeed * deltaTime;
-        }
-
         return direction * MovementSpeed * deltaTime;
     }
 

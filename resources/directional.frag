@@ -56,7 +56,7 @@ void main(void) {
             * lights.specular_material[i] * lights.specular_intensity[i];
     }
 
-
-    FragColor = vec4( (ambient + diffuse) * texture(tex0, fs_in.texCoord).rgb + specular, 1.0);
-}
+    vec4 texColor = texture(tex0, fs_in.texCoord);
+    FragColor = vec4( (ambient + diffuse) * texColor.rgb + specular, texColor.a);
+}   
 

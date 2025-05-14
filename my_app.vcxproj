@@ -192,6 +192,7 @@
     <Image Include="resources\box.png" />
     <Image Include="resources\box_rgb888.png" />
     <Image Include="resources\heights.png" />
+    <Image Include="resources\suntx.png" />
     <Image Include="resources\TextureDouble_A.png" />
     <Image Include="resources\tex_256.png" />
   </ItemGroup>

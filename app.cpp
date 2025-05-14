@@ -161,6 +161,7 @@ int App::run(void)
         glEnable(GL_CULL_FACE);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwGetCursorPos(window, &cursorLastX, &cursorLastY);
+        //glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
 
 
 		/*glm::vec4 ourRGBA = { 0.0f, 0.0f, 1.0f, 0.5f };
@@ -176,9 +177,9 @@ int App::run(void)
 		lights.position[1] = glm::vec4(0, 10, 10, 1);
 		lights.position[2] = glm::vec4(10, 10, 10, 1);
 
-		lights.color[0] = glm::vec3(1, 0, 0);
-		lights.color[1] = glm::vec3(0, 1, 0);
-		lights.color[2] = glm::vec3(0, 0, 1);
+		lights.color[0] = glm::vec3(1, 1, 0);
+		lights.color[1] = glm::vec3(1, 1, 1);
+		lights.color[2] = glm::vec3(1, 1, 1);
 		lights.ambient_intensity[0] = glm::vec3(0.2, 0.2, 0.2);
 		lights.ambient_intensity[1] = glm::vec3(0.2, 0.2, 0.2);
 		lights.ambient_intensity[2] = glm::vec3(0.2, 0.2, 0.2);
@@ -210,6 +211,7 @@ int App::run(void)
             model.shader.setUniform("diffuse_material", glm::vec3(1.0, 1.0, 1.0));
             model.shader.setUniform("specular_material", glm::vec3(0.5, 0.5, 0.5));
 			model.shader.setUniform("specular_shinines", 32.0f);*/
+            std::cout << name << " " << model.shader.getProgramID() << std::endl;
 			model.shader.setUniform("lights.position", lights.position);
 			model.shader.setUniform("lights.color", lights.color);
 			model.shader.setUniform("lights.ambient_intensity", lights.ambient_intensity);
@@ -237,7 +239,27 @@ int App::run(void)
 
 
             //########## react to user  ##########
-            camera.ProcessInput(window, delta_t);
+            glm::vec3 move = camera.ProcessInput(window, delta_t);
+            if (glm::length(move) > 0)
+            {
+                //collision
+                float newX = camera.Position.x + move.x;
+                float newZ = camera.Position.z + move.z;
+                char labyrinth_object = getmap(mapa, newX + 0.5, newZ + 0.5);
+                if (labyrinth_object == '#' || labyrinth_object == '@') {
+                    labyrinth_object = getmap(mapa, camera.Position.x + 0.5 , newZ + 0.5);
+                    if (labyrinth_object != '#' && labyrinth_object != '@') {
+                        camera.Position.z = newZ;
+                    }
+                    labyrinth_object = getmap(mapa, newX + 0.5, camera.Position.z + 0.5);
+                    if (labyrinth_object != '#' && labyrinth_object != '@') {
+                        camera.Position.x = newX;
+                    }
+                }
+                else {
+                    camera.Position += move;
+                }
+            }
 
             std::vector<Model*> transparent;
             transparent.reserve(scene.size());
@@ -259,10 +281,15 @@ int App::run(void)
                 }
                 //model.draw();
                 //model.second.draw(glm::vec3(0.0f),
+                if (name == "sun") {
+                    model.origin.z = std::cos(angle) * 22.0f / model.scale.x;
+                    model.origin.y = std::sin(angle) * 22.0f / model.scale.x;
+                    //model.orientation.x = angle;
+                }
                 lights.position[0].z = std::cos(angle) * 20.0f;
                 lights.position[0].y = std::sin(angle) * 20.0f;
                 model.shader.setUniform("lights.position", lights.position);
-                angle += glm::radians(static_cast<float>(0.0001f * glfwGetTime()));
+                angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
                 //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
 
@@ -285,6 +312,7 @@ int App::run(void)
 			glDisable(GL_BLEND);
 			glDepthMask(GL_TRUE);
 			glEnable(GL_CULL_FACE);
+
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -548,14 +576,15 @@ void App::genLabyrinth(cv::Mat& map) {
     //generate boxes
     glm::vec4 green = { 0.0f, 1.0f, 0.0f, 0.5f };
     //ShaderProgram slope_shader = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
-    ShaderProgram wall_shader = ShaderProgram("resources/directional.vert", "resources/directional.frag");
+    //ShaderProgram wall_shader = ShaderProgram("resources/directional.vert", "resources/directional.frag");
+    ShaderProgram wall_shader = globalShader;
     bool transparent;
     int box_num = 0;
     for (int j = 0; j < map.rows; j++) {
         for (int i = 0; i < map.cols; i++) {
             if (getmap(map, i, j) == '#') {
                 Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
-                GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
+                GLuint box_t = textureInit("resources/wall.jpg", transparent);
                 box.meshes[0].texture_id = box_t;
                 box.transparent = false; //TODO: change to true someday
                 box.origin.x = i;
@@ -567,12 +596,13 @@ void App::genLabyrinth(cv::Mat& map) {
             }
             if (getmap(map, i, j) == '@') {
                 Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
-                GLuint box_t = textureInit("resources/box_rgb888.png", transparent);
+                GLuint box_t = textureInit("resources/wall.jpg", transparent);
                 box.meshes[0].texture_id = box_t;
                 box.transparent = false;
                 box.origin.x = i;
                 box.origin.z = j;
                 box.scale.y = 2;
+                box.origin.y += 0.25;
 
                 scene.emplace("wall" + std::to_string(box_num), box);
                 box_num += 1;
@@ -734,16 +764,16 @@ void App::init_assets() {
 
     globalShader = my_shader_program;
 
-    Model my_model = Model("resources/bunny_tri_vnt.obj", my_shader_program);
-
-    GLuint mytex = textureInit("resources/box_rgb888.png", transparent);
+    Model my_model = Model("resources/cube_triangles_vnt.obj", my_shader_program);
+    GLuint mytex = textureInit("resources/sun2.jpg", transparent);
 	my_model.transparent = transparent;
     my_model.meshes[0].texture_id = mytex;
+    my_model.scale *= 2.0f;
     //my_model.texture_id = mytex;
 
     Model box = Model("resources/cube_triangles_vnt.obj", my_shader_program);
     GLuint new_tex = textureInit("resources/tex_256.png", transparent);
-	box.transparent = transparent;
+    box.transparent = transparent;
     box.meshes[0].texture_id = new_tex;
     box.scale *= 2.0f;
     box.origin.x = 3;
@@ -753,17 +783,27 @@ void App::init_assets() {
     GLuint teapot_tex = textureInit("resources/TextureDouble_A.png", transparent);
     teapot.transparent = true;
     teapot.meshes[0].texture_id = teapot_tex;
-	std::cout << "Teapot texture: " << teapot_tex << std::endl;
 	teapot.origin.x = -5;
 	teapot.origin.z = 2;
-    box.scale *= 1.0f;
+    //box.scale *= 1.0f;
 
+    Model floor = Model("resources/square.obj", my_shader_program);
+    GLuint floor_tex = textureInit("resources/floor.jpg", transparent);
+    floor.transparent = false;
+    floor.meshes[0].texture_id = floor_tex;
+    floor.orientation.x = - 3.1415/2;
+    floor.scale.z += 20.0f;
+    floor.scale.x += 30.0f;
+    floor.origin.z -= 0.5f; //y level
 
-    //scene.emplace("our_first_object", my_model);
+    floor.origin.x += 0.5f;
+
+    scene.emplace("sun", my_model);
+    scene.emplace("floor", floor);
     //scene.emplace("boxing", box);
 	//scene.emplace("teapot", teapot);
 
-    cv::Mat mapa = cv::Mat(10, 25, CV_8U);
+    //cv::Mat mapa = cv::Mat(10, 25, CV_8U);
     //cv::imshow("mapa", mapa);
     genLabyrinth(mapa);
     //cv::imshow("mapa", mapa);
