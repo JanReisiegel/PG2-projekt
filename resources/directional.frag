@@ -36,7 +36,6 @@ in VS_OUT {
 } fs_in;
 
 void main(void) {
-    vec3 accumulator = vec3(0.0);
     vec3 ambient = vec3(0.0);
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
@@ -51,9 +50,9 @@ void main(void) {
         vec3 R = reflect(-L, N);
 
         // Calculate the ambient, diffuse and specular contributions
-        ambient += lights.ambient_material[i] * lights.ambient_intensity[i];
-        diffuse += max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
-        specular += pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
+        ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
+        diffuse += lights.color[i] * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
+        specular += lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
             * lights.specular_material[i] * lights.specular_intensity[i];
     }
 

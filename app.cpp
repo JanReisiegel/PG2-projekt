@@ -222,6 +222,9 @@ int App::run(void)
 
         }
 
+        //sun lightning
+        float angle = 0.0f;
+
         while (!glfwWindowShouldClose(window))
         {
             double current_time = glfwGetTime();
@@ -256,6 +259,10 @@ int App::run(void)
                 }
                 //model.draw();
                 //model.second.draw(glm::vec3(0.0f),
+                lights.position[0].x = std::cos(angle) * 10.0f;
+                lights.position[1].y = std::sin(angle) * 10.0f;
+                model.shader.setUniform("lights.position", lights.position);
+                angle += glm::radians(static_cast<float>(0.0001f * glfwGetTime()));
                 //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
 
