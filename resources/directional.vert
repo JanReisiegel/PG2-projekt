@@ -46,6 +46,7 @@ out VS_OUT {
     vec3 L[MAX_LIGHTS];
     vec3 V;
     vec2 texCoord;
+    
 } vs_out;
 
 void main(void) {
@@ -66,8 +67,11 @@ void main(void) {
         vec3 light_position_view = vec3(uV_m * lights.position[i]);
         if (lights.position[i].w == 0.0){
             vs_out.L[i] = light_position_view.xyz;
+        } else if (lights.cos_cutoff[i] == 180.0){
+            vs_out.L[i] = light_position_view - P.xyz;
         } else {
             vs_out.L[i] = light_position_view - P.xyz;
+            //vs_out.spot_dir[i] = mat3(uV_m) * lights.spot_direction[i];
         }
     }
     // Calculate view vector (negative of the view-space position)

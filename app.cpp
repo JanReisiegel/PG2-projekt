@@ -257,7 +257,8 @@ int App::run(void)
                 }
                 lights.position[0].z = std::cos(angle) * 20.0f;
                 lights.position[0].y = std::sin(angle) * 20.0f;
-                lights.position[3] = glm::vec4(camera.Position, 1);
+                lights.position[5] = glm::vec4(camera.Position, 1.0);
+                lights.spot_direction[5] = camera.Front;
                 model.shader.setUniform("lights.position", lights.position);
                 angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
                 //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
@@ -364,11 +365,16 @@ s_lights App::initLights(void) {
     lights.position[5] = glm::vec4(0, 0, 0, 1); //camera
 
     // Colors
-    lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
+    /*lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
     lights.color[1] = glm::vec3(0.0, 1.0, 0.0); 
     lights.color[2] = glm::vec3(0.9, 0.95, 1.0);
     lights.color[3] = glm::vec3(1.0, 0.95, 0.8);
-    lights.color[4] = glm::vec3(0.8, 0.9, 1.0);
+    lights.color[4] = glm::vec3(0.8, 0.9, 1.0);*/
+    lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
+    lights.color[1] = glm::vec3(1.0, 1.0, 1.0);
+    lights.color[2] = glm::vec3(0.0, 0.0, 0.0);
+    lights.color[3] = glm::vec3(1.0, 1.0, 1.0);
+    lights.color[4] = glm::vec3(0.0, 0.0, 0.0);
     lights.color[5] = glm::vec3(0.1, 0.4, 1.0);
 
     // Ambient Intensities
@@ -425,14 +431,32 @@ s_lights App::initLights(void) {
     lights.cos_cutoff[2] = 180.0f;
     lights.cos_cutoff[3] = 180.0f;
     lights.cos_cutoff[4] = 180.0f;
-    lights.cos_cutoff[5] = 180.0f;
+    lights.cos_cutoff[5] = std::cos(glm::radians(static_cast<float>(15.0)));
+    lights.spot_exponent[5] = 8.0;
 
     //attenuation
-    for (int i = 0; i < 6; ++i) {
+    // sun
+    lights.constant[0] = 1.0f;
+    lights.linear[0] = 0.014f;
+    lights.quadratic[0] = 0.0007f;
+
+    // lights
+    for (int i = 1; i < 5; ++i) {
         lights.constant[i] = 1.0f;
-        lights.linear[i] = 0.7f;
-        lights.quadratic[i] = 1.8f;
+        lights.linear[i] = 1.22f;
+        lights.quadratic[i] = 1.20f;
     }
+
+    // flashlight
+    lights.constant[5] = 1.0f;
+    lights.linear[5] = 0.14f;
+    lights.quadratic[5] = 0.07f;
+    /*lights.constant[2] = 5.0f;
+    lights.linear[2] = 3.22f;
+    lights.quadratic[2] = 2.20f;
+    lights.constant[5] = 5.0f;
+    lights.linear[5] = 3.22f;
+    lights.quadratic[5] = 2.20f;*/
 
     for (auto& [name, model] : scene) {
         model.shader.setUniform("lights.position", lights.position);

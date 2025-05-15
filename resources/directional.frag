@@ -70,11 +70,11 @@ void main(void) {
                 * lights.specular_material[i] * lights.specular_intensity[i];
         }else if (lights.cos_cutoff[i] == 180.0){
             //point
-            float d = length(L);
+            float d = length(fs_in.L[i]);
             float dist_attenuation = 1.0 / (lights.constant[i] + lights.linear[i] * d + lights.quadratic[i] * d * d);
-            ambient += dist_attenuation * lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
+            ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
             diffuse += dist_attenuation * lights.color[i] * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
-            specular += lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
+            specular += dist_attenuation * lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
                 * lights.specular_material[i] * lights.specular_intensity[i];
         }else{
             //spot
