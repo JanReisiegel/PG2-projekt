@@ -53,6 +53,7 @@ private:
     GLFWwindow* window;
 	bool fullScreen{ false };
     int windowPositionX{ 0 }, windowPositionY{ 0 };
+	int windowWidth{ 800 }, windowHeight{ 600 };
 	GLFWmonitor* monitor{ nullptr };
 	const GLFWvidmode* mode{ nullptr };
 
@@ -61,6 +62,7 @@ private:
     void getFPS();
     void initGlew(void);
     void init_assets(void);
+    s_lights initLights(void);
     void update_projection_matrix(void);
     GLuint textureInit(const std::filesystem::path&, bool&);
     GLuint gen_tex(cv::Mat&, bool&);
