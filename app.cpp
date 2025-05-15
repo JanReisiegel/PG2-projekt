@@ -116,6 +116,7 @@ void App::initGLFW(void) {
 
     //disable mouse cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	mouseCursorIsCatched = true;
 
 	//Callback functions for GLFW
     glfwSetWindowUserPointer(window, this);

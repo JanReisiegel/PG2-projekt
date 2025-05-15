@@ -104,21 +104,48 @@ void App::fbsize_callback(GLFWwindow* window, int width, int height)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
+	if (action == GLFW_PRESS)
 	{
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-		//std::cout << "Mouse clicked at: " << xpos << ", " << ypos << std::endl;
+		switch (button) {
+			case GLFW_MOUSE_BUTTON_LEFT:
+			{
+				int cursor_mode = glfwGetInputMode(window, GLFW_CURSOR);
+				if(cursor_mode == GLFW_CURSOR_NORMAL) {
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					app_instance->mouseCursorIsCatched = true;
+				}
+				else {
+					std::cout << "Claim!" << std::endl;
+				}
+				//double xpos, ypos;
+				//glfwGetCursorPos(window, &xpos, &ypos);
+				//std::cout << "Mouse clicked at: " << xpos << ", " << ypos << std::endl;
+				break;
+			}
+			case GLFW_MOUSE_BUTTON_RIGHT:
+			{
+				//release the mouse cursor
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				app_instance->mouseCursorIsCatched = false;
+				break;
+			}
+			default:
+				break;
+		}
+
 	}
 }
 
 void App::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	auto app = static_cast<App*>(glfwGetWindowUserPointer(window));
-
-	app->camera.ProcessMouseMovement(xpos - app->cursorLastX, (ypos - app->cursorLastY) * -1.0);
-	app->cursorLastX = xpos;
-	app->cursorLastY = ypos;
+	if (app->mouseCursorIsCatched)
+	{
+		app->camera.ProcessMouseMovement(xpos - app->cursorLastX, (ypos - app->cursorLastY) * -1.0);
+		app->cursorLastX = xpos;
+		app->cursorLastY = ypos;
+	}
 }
 
 void App::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

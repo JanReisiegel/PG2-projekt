@@ -42,7 +42,7 @@ public:
     glm::vec2 get_subtex_st(const int, const int);
     Model init_hm(void);
     Model GenHeightMap(const cv::Mat&, const unsigned int);
-
+    bool mouseCursorIsCatched{ false };
     bool vsync;
 
     ~App();
@@ -56,6 +56,7 @@ private:
 	int windowWidth{ 800 }, windowHeight{ 600 };
 	GLFWmonitor* monitor{ nullptr };
 	const GLFWvidmode* mode{ nullptr };
+	
 
 
     void getInfo(GLenum, const std::string&, bool);
