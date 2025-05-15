@@ -197,22 +197,21 @@ int App::run(void)
             if (glm::length(move) > 0)
             {
                 //collision
+                float radius = 0.15f;
+                float newZ = camera.Position.z + move.z;              
+                float checkZ = newZ + (move.z > 0 ? radius : -radius);
+                char labyrinth_object = getmap(mapa, camera.Position.x + 0.5 , checkZ + 0.5);
+                if (labyrinth_object != '#' && labyrinth_object != '@') {
+                    camera.Position.z = newZ;
+
+                }
                 float newX = camera.Position.x + move.x;
-                float newZ = camera.Position.z + move.z;
-                char labyrinth_object = getmap(mapa, newX + 0.5, newZ + 0.5);
-                if (labyrinth_object == '#' || labyrinth_object == '@') {
-                    labyrinth_object = getmap(mapa, camera.Position.x + 0.5 , newZ + 0.5);
-                    if (labyrinth_object != '#' && labyrinth_object != '@') {
-                        camera.Position.z = newZ;
-                    }
-                    labyrinth_object = getmap(mapa, newX + 0.5, camera.Position.z + 0.5);
-                    if (labyrinth_object != '#' && labyrinth_object != '@') {
-                        camera.Position.x = newX;
-                    }
+                float checkX = newX + (move.x > 0 ? radius : -radius);
+                labyrinth_object = getmap(mapa, checkX + 0.5, camera.Position.z + 0.5);
+                if (labyrinth_object != '#' && labyrinth_object != '@') {
+                    camera.Position.x = newX;
                 }
-                else {
-                    camera.Position += move;
-                }
+                camera.Position.y += move.y;
             }
 
             std::vector<Model*> transparent;
