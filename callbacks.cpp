@@ -53,15 +53,16 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 void App::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
-	switch (key)
-	{
-		case GLFW_KEY_ESCAPE:
-			if (action == GLFW_PRESS)
+	if(action == GLFW_PRESS){
+		switch (key)
+		{
+			case GLFW_KEY_ESCAPE:
+			{
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
-			break;
-		case GLFW_KEY_V: //GLFW_KEY_F12 - GLFW_KEY_V
-			
-			if (action == GLFW_PRESS) {
+				break;
+			}
+			case GLFW_KEY_V: //GLFW_KEY_F12 - GLFW_KEY_V
+			{
 				if (app_instance->vsync) {
 					glfwSwapInterval(0);
 					app_instance->vsync = false;
@@ -70,18 +71,24 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
 					glfwSwapInterval(1);
 					app_instance->vsync = true;
 				}
+				break;
 			}
-			break;
-		case GLFW_KEY_O: {
-			if(action == GLFW_PRESS) {
+			case GLFW_KEY_O: {
 				app_instance->change_screen_mode();
+				break;
 			}
-			break;
+			case GLFW_KEY_I: {
+				app_instance->pause = !app_instance->pause;
+				if (app_instance->pause) {
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					app_instance->mouseCursorIsCatched = false;
+				}
+				break;
+			}
+			default:
+				break;
 		}
-		default:
-			break;
 	}
-	
 }
 
 void error_callback(int error, const char* description)
@@ -100,6 +107,9 @@ void App::fbsize_callback(GLFWwindow* window, int width, int height)
 	//now your canvas has [0,0] in bottom left corner, and its size is [width x height] 
 
 	this_inst->update_projection_matrix();
+
+	std::string title = std::string("OpenGL context: ").append(std::to_string(width)).append("x").append(std::to_string(height));
+	glfwSetWindowTitle(window, title.c_str());
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
