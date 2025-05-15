@@ -20,6 +20,17 @@ struct s_lights {
 	vec3 diffuse_material[MAX_LIGHTS];
 	vec3 specular_material[MAX_LIGHTS];
 	float specular_shinines[MAX_LIGHTS];
+
+    // Spotlight specific
+    vec3 spot_direction[MAX_LIGHTS];
+    float cos_cutoff[MAX_LIGHTS];
+    float spot_exponent[MAX_LIGHTS];
+
+    //attenuation
+    float constant[MAX_LIGHTS];
+    float linear[MAX_LIGHTS];
+    float quadratic[MAX_LIGHTS];
+
 };
 
 uniform s_lights lights;
@@ -34,6 +45,7 @@ in VS_OUT {
     vec3 V;
     vec2 texCoord;
 } fs_in;
+
 
 void main(void) {
     vec3 ambient = vec3(0.0);
@@ -50,10 +62,34 @@ void main(void) {
         vec3 R = reflect(-L, N);
 
         // Calculate the ambient, diffuse and specular contributions
-        ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
-        diffuse += lights.color[i] * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
-        specular += lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
-            * lights.specular_material[i] * lights.specular_intensity[i];
+        if (lights.position[i].w == 0.0){
+            //directional
+            ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
+            diffuse += lights.color[i] * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
+            specular += lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
+                * lights.specular_material[i] * lights.specular_intensity[i];
+        }else if (lights.cos_cutoff[i] == 180.0){
+            //point
+            float d = length(L);
+            float dist_attenuation = 1.0 / (lights.constant[i] + lights.linear[i] * d + lights.quadratic[i] * d * d);
+            ambient += dist_attenuation * lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
+            diffuse += dist_attenuation * lights.color[i] * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
+            specular += lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
+                * lights.specular_material[i] * lights.specular_intensity[i];
+        }else{
+            //spot
+            float d = length(L);
+            float dist_attenuation = 1.0 / (lights.constant[i] + lights.linear[i] * d + lights.quadratic[i] * d * d);
+            float spotEffect = dot(normalize(lights.spot_direction[i]), -L);
+            float full_attenuation = 0.0;
+            if (spotEffect > lights.cos_cutoff[i]){
+                full_attenuation = dist_attenuation * pow(spotEffect, lights.spot_exponent[i]);
+            }
+            ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
+            diffuse += full_attenuation * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
+            specular += full_attenuation * lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
+                * lights.specular_material[i] * lights.specular_intensity[i];
+        }
     }
 
     vec4 texColor = texture(tex0, fs_in.texCoord);

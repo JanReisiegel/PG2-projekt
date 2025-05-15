@@ -338,51 +338,87 @@ void App::initGlew(void) {
 
 s_lights App::initLights(void) {
     s_lights lights = s_lights();
-    lights.position[0] = glm::vec4(10, 10, 0, 1);
-    lights.position[1] = glm::vec4(0, 10, 10, 1);
-    lights.position[2] = glm::vec4(0, 10, 0, 1);
 
-    lights.color[0] = glm::vec3(1, 1, 0);
-    lights.color[1] = glm::vec3(1, 1, 1);
-    lights.color[2] = glm::vec3(1, 1, 1);
-    lights.color[3] = glm::vec3(0.1, 0.4, 1);
-    lights.ambient_intensity[0] = glm::vec3(0.2, 0.2, 0.2);
+    // Positions
+    lights.position[0] = glm::vec4(0, 0, 0, 1); //sun
+    lights.position[1] = glm::vec4(0, -1, -0.2, 0.0); //glm::vec4(10, 10, 25, 1);
+    lights.position[2] = glm::vec4(10, 10, 0, 1);
+    lights.position[3] = glm::vec4(25, 10, 10, 1);
+    lights.position[4] = glm::vec4(0, 10, 0, 1);
+    lights.position[5] = glm::vec4(0, 0, 0, 1); //camera
+
+    // Colors
+    lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
+    lights.color[1] = glm::vec3(0.0, 1.0, 0.0); 
+    lights.color[2] = glm::vec3(0.9, 0.95, 1.0);
+    lights.color[3] = glm::vec3(1.0, 0.95, 0.8);
+    lights.color[4] = glm::vec3(0.8, 0.9, 1.0);
+    lights.color[5] = glm::vec3(0.1, 0.4, 1.0);
+
+    // Ambient Intensities
+    lights.ambient_intensity[0] = glm::vec3(0.3, 0.3, 0.25);
     lights.ambient_intensity[1] = glm::vec3(0.2, 0.2, 0.2);
-    lights.ambient_intensity[2] = glm::vec3(0.2, 0.2, 0.2);
-    lights.ambient_intensity[3] = glm::vec3(0.2, 0.2, 0.2);
-    lights.diffuse_intensity[0] = glm::vec3(0.8, 0.8, 0.8);
-    lights.diffuse_intensity[1] = glm::vec3(0.8, 0.8, 0.8);
-    lights.diffuse_intensity[2] = glm::vec3(0.8, 0.8, 0.8);
-    lights.diffuse_intensity[3] = glm::vec3(0.8, 0.8, 0.8);
+    lights.ambient_intensity[2] = glm::vec3(0.15, 0.15, 0.2);
+    lights.ambient_intensity[3] = glm::vec3(0.2, 0.18, 0.15);
+    lights.ambient_intensity[4] = glm::vec3(0.18, 0.2, 0.25);
+    lights.ambient_intensity[5] = glm::vec3(0.1, 0.15, 0.3);
+
+    // Diffuse Intensities
+    lights.diffuse_intensity[0] = glm::vec3(0.9, 0.9, 0.8);
+    lights.diffuse_intensity[1] = glm::vec3(0.7, 0.7, 0.7);
+    lights.diffuse_intensity[2] = glm::vec3(0.6, 0.6, 0.7);
+    lights.diffuse_intensity[3] = glm::vec3(0.8, 0.7, 0.5);
+    lights.diffuse_intensity[4] = glm::vec3(0.5, 0.6, 0.8);
+    lights.diffuse_intensity[5] = glm::vec3(0.8, 0.8, 1.0);
+
+    // Specular Intensities
     lights.specular_intensity[0] = glm::vec3(1.0, 1.0, 1.0);
-    lights.specular_intensity[1] = glm::vec3(1.0, 1.0, 1.0);
-    lights.specular_intensity[2] = glm::vec3(1.0, 1.0, 1.0);
-    lights.specular_intensity[3] = glm::vec3(1.0, 1.0, 1.0);
-    lights.ambient_material[0] = glm::vec3(0.2, 0.2, 0.2);
-    lights.ambient_material[1] = glm::vec3(0.2, 0.2, 0.2);
-    lights.ambient_material[2] = glm::vec3(0.2, 0.2, 0.2);
-    lights.ambient_material[3] = glm::vec3(0.2, 0.2, 0.2);
-    lights.diffuse_material[0] = glm::vec3(1.0, 1.0, 1.0);
-    lights.diffuse_material[1] = glm::vec3(1.0, 1.0, 1.0);
-    lights.diffuse_material[2] = glm::vec3(1.0, 1.0, 1.0);
-    lights.diffuse_material[3] = glm::vec3(1.0, 1.0, 1.0);
-    lights.specular_material[0] = glm::vec3(0.5, 0.5, 0.5);
+    lights.specular_intensity[1] = glm::vec3(0.7, 0.7, 0.7);
+    lights.specular_intensity[2] = glm::vec3(0.6, 0.6, 0.7);
+    lights.specular_intensity[3] = glm::vec3(0.9, 0.8, 0.6);
+    lights.specular_intensity[4] = glm::vec3(0.7, 0.8, 0.9);
+    lights.specular_intensity[5] = glm::vec3(1.0, 1.0, 1.0);
+
+    // Ambient Material
+    for (int i = 0; i < 6; ++i)
+        lights.ambient_material[i] = glm::vec3(0.2, 0.2, 0.2);
+
+    // Diffuse Material
+    for (int i = 0; i < 6; ++i)
+        lights.diffuse_material[i] = glm::vec3(1.0, 1.0, 1.0);
+
+    // Specular Material
+    lights.specular_material[0] = glm::vec3(0.6, 0.6, 0.5);
     lights.specular_material[1] = glm::vec3(0.5, 0.5, 0.5);
-    lights.specular_material[2] = glm::vec3(0.5, 0.5, 0.5);
-    lights.specular_material[3] = glm::vec3(0.5, 0.5, 0.5);
-    lights.specular_shinines[0] = 32.0f;
+    lights.specular_material[2] = glm::vec3(0.4, 0.4, 0.5);
+    lights.specular_material[3] = glm::vec3(0.6, 0.5, 0.4);
+    lights.specular_material[4] = glm::vec3(0.5, 0.5, 0.6);
+    lights.specular_material[5] = glm::vec3(0.6, 0.7, 1.0);
+
+    // Shininess
+    lights.specular_shinines[0] = 64.0f;
     lights.specular_shinines[1] = 32.0f;
-    lights.specular_shinines[2] = 32.0f;
-    lights.specular_shinines[3] = 32.0f;
+    lights.specular_shinines[2] = 24.0f;
+    lights.specular_shinines[3] = 48.0f;
+    lights.specular_shinines[4] = 40.0f;
+    lights.specular_shinines[5] = 96.0f;
+
+    //spotlight
+    lights.cos_cutoff[0] = 180.0f;
+    lights.cos_cutoff[1] = 180.0f;
+    lights.cos_cutoff[2] = 180.0f;
+    lights.cos_cutoff[3] = 180.0f;
+    lights.cos_cutoff[4] = 180.0f;
+    lights.cos_cutoff[5] = 180.0f;
+
+    //attenuation
+    for (int i = 0; i < 6; ++i) {
+        lights.constant[i] = 1.0f;
+        lights.linear[i] = 0.7f;
+        lights.quadratic[i] = 1.8f;
+    }
 
     for (auto& [name, model] : scene) {
-        /*model.shader.setUniform("ambient_intensity", glm::vec3(0.2, 0.2, 0.2));
-        model.shader.setUniform("diffuse_intensity", glm::vec3(0.8, 0.8, 0.8));
-        model.shader.setUniform("specular_intensity", glm::vec3(1.0, 1.0, 1.0));
-        model.shader.setUniform("ambient_material", glm::vec3(0.2, 0.2, 0.2));
-        model.shader.setUniform("diffuse_material", glm::vec3(1.0, 1.0, 1.0));
-        model.shader.setUniform("specular_material", glm::vec3(0.5, 0.5, 0.5));
-        model.shader.setUniform("specular_shinines", 32.0f);*/
         model.shader.setUniform("lights.position", lights.position);
         model.shader.setUniform("lights.color", lights.color);
         model.shader.setUniform("lights.ambient_intensity", lights.ambient_intensity);
@@ -393,6 +429,13 @@ s_lights App::initLights(void) {
         model.shader.setUniform("lights.specular_material", lights.specular_material);
         model.shader.setUniform("lights.specular_shinines", lights.specular_shinines);
 
+        model.shader.setUniform("lights.cos_cutoff", lights.cos_cutoff);
+        model.shader.setUniform("lights.spot_direction", lights.spot_direction);
+        model.shader.setUniform("lights.spot_exponent", lights.spot_exponent);
+
+        model.shader.setUniform("lights.constant", lights.constant);
+        model.shader.setUniform("lights.linear", lights.linear);
+        model.shader.setUniform("lights.quadratic", lights.quadratic);
     }
 
 	return lights;

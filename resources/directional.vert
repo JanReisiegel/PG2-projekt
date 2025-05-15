@@ -12,6 +12,17 @@ struct s_lights {
 	vec3 diffuse_material[MAX_LIGHTS];
 	vec3 specular_material[MAX_LIGHTS];
 	float specular_shinines[MAX_LIGHTS];
+
+    // Spotlight specific
+    vec3 spot_direction[MAX_LIGHTS];
+    float cos_cutoff[MAX_LIGHTS];
+    float spot_exponent[MAX_LIGHTS];
+
+    //attenuation
+    float constant[MAX_LIGHTS];
+    float linear[MAX_LIGHTS];
+    float quadratic[MAX_LIGHTS];
+
 };
 
 // Vertex attributes
@@ -53,7 +64,11 @@ void main(void) {
     for (int i = 0; i < lights.position.length(); i++) {
         // Calculate light vector in view space
         vec3 light_position_view = vec3(uV_m * lights.position[i]);
-        vs_out.L[i] = light_position_view - P.xyz;
+        if (lights.position[i].w == 0.0){
+            vs_out.L[i] = light_position_view.xyz;
+        } else {
+            vs_out.L[i] = light_position_view - P.xyz;
+        }
     }
     // Calculate view vector (negative of the view-space position)
     vs_out.V = -P.xyz;
