@@ -173,6 +173,10 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="callbacks.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="imgui_toggle\imgui_toggle.cpp" />
+    <ClCompile Include="imgui_toggle\imgui_toggle_palette.cpp" />
+    <ClCompile Include="imgui_toggle\imgui_toggle_presets.cpp" />
+    <ClCompile Include="imgui_toggle\imgui_toggle_renderer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -184,6 +188,12 @@
     <ClInclude Include="callbacks.hpp" />
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="gl_err_callback.hpp" />
+    <ClInclude Include="imgui_toggle\imgui_offset_rect.h" />
+    <ClInclude Include="imgui_toggle\imgui_toggle.h" />
+    <ClInclude Include="imgui_toggle\imgui_toggle_math.h" />
+    <ClInclude Include="imgui_toggle\imgui_toggle_palette.h" />
+    <ClInclude Include="imgui_toggle\imgui_toggle_presets.h" />
+    <ClInclude Include="imgui_toggle\imgui_toggle_renderer.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model.hpp" />

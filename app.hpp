@@ -52,6 +52,7 @@ public:
     bool fullScreen{ false };
     bool mouseCursorIsCatched{ false };
     bool vsync;
+    bool pause{ false };
 
     ~App();
 private:
@@ -64,7 +65,6 @@ private:
     GLFWmonitor* monitor{ nullptr };
     const GLFWvidmode* mode{ nullptr };
 	bool show_imgui{ true };
-	bool pause{ false };
     int FPS;
 
     void getInfo(GLenum, const std::string&, bool);

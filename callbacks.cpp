@@ -77,7 +77,7 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
 				app_instance->change_screen_mode();
 				break;
 			}
-			case GLFW_KEY_I: {
+			case GLFW_KEY_P: {
 				app_instance->pause = !app_instance->pause;
 				if (app_instance->pause) {
 					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -121,13 +121,15 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			case GLFW_MOUSE_BUTTON_LEFT:
 			{
 				int cursor_mode = glfwGetInputMode(window, GLFW_CURSOR);
-
-				if(cursor_mode == GLFW_CURSOR_NORMAL) {
-					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-					app->mouseCursorIsCatched = true;
-				}
-				else {
-					std::cout << "Claim!" << std::endl;
+				if(!app->pause)
+				{
+					if (cursor_mode == GLFW_CURSOR_NORMAL) {
+						glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+						app->mouseCursorIsCatched = true;
+					}
+					else {
+						std::cout << "Claim!" << std::endl;
+					}
 				}
 				//double xpos, ypos;
 				//glfwGetCursorPos(window, &xpos, &ypos);

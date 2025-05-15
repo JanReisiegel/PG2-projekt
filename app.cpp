@@ -4,9 +4,10 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
-
 #include "app.hpp"
 #include "json.hpp"
+#include "imgui_toggle/imgui_toggle.h"
+#include "imgui_toggle/imgui_toggle_presets.h"
 using json = nlohmann::json;
 
 GLFWwindow* window = nullptr; // move App class 
@@ -174,30 +175,9 @@ void App::load_json(const std::filesystem::path& json_file) {
 }
 
 void App::render_imgui(void) {
-    //if (App::pause) {
-    //    ImGui_ImplOpenGL3_NewFrame();
-    //    ImGui_ImplGlfw_NewFrame();
-    //    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Always);
-    //    ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_Always); // Nastav kde bude menu
-
-    //    ImGui::Begin("Pauza", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
-
-    //    ImGui::Text("Hra je pozastavena.");
-    //    if (ImGui::Button("Pokračovat"))
-    //    {
-    //        pause = false;
-    //    }
-
-    //    if (ImGui::Button("Ukončit hru"))
-    //    {
-    //        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    //    }
-
-    //    ImGui::End();
-    //}
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
     if (App::show_imgui) {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         //ImGui::ShowDemoWindow(); // Enable mouse when using Demo!
         ImGui::SetNextWindowPos(ImVec2(10, 10));
@@ -206,6 +186,40 @@ void App::render_imgui(void) {
         ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("V-Sync: %s", vsync ? "ON" : "OFF");
         ImGui::Text("FPS: %d", FPS);
+        ImGui::End();
+    }
+    if (App::pause) {
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+
+		ImVec2 imguiSize = ImVec2(300, 200);
+		ImVec2 imguiPos = ImVec2((width - imguiSize.x) / 2, (height - imguiSize.y) / 2);
+
+        ImGui::SetNextWindowSize(imguiSize, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(imguiPos, ImGuiCond_Always);
+
+        ImGui::Begin("Pause", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+
+        ImGui::Text("Game is paused.");
+        if (ImGui::Button("Continue"))
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            mouseCursorIsCatched = true;
+            pause = false;
+        }
+
+        if (ImGui::Button("End game"))
+        {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+
+        ImGuiToggleConfig toggle_config = ImGuiTogglePresets::MaterialStyle();
+
+        if (ImGui::Toggle("VSync", &vsync, toggle_config)) {
+			glfwSwapInterval(vsync ? 1 : 0);
+        }
+
+
         ImGui::End();
     }
 }
