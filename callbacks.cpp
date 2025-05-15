@@ -104,16 +104,17 @@ void App::fbsize_callback(GLFWwindow* window, int width, int height)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	auto app_instance = static_cast<App*>(glfwGetWindowUserPointer(window));
+	auto app = static_cast<App*>(glfwGetWindowUserPointer(window));
 	if (action == GLFW_PRESS)
 	{
 		switch (button) {
 			case GLFW_MOUSE_BUTTON_LEFT:
 			{
 				int cursor_mode = glfwGetInputMode(window, GLFW_CURSOR);
+
 				if(cursor_mode == GLFW_CURSOR_NORMAL) {
 					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-					app_instance->mouseCursorIsCatched = true;
+					app->mouseCursorIsCatched = true;
 				}
 				else {
 					std::cout << "Claim!" << std::endl;
@@ -126,8 +127,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			case GLFW_MOUSE_BUTTON_RIGHT:
 			{
 				//release the mouse cursor
-				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-				app_instance->mouseCursorIsCatched = false;
+				if(!app->fullScreen)
+				{
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					app->mouseCursorIsCatched = false;
+				}
 				break;
 			}
 			default:
