@@ -23,24 +23,10 @@ bool App::init()
     try {
         // initialization code
         //...
+        
+		initGLFW();
 
-        // init glfw
-        // https://www.glfw.org/documentation.html
-        glfwSetErrorCallback(error_callback);
-        glfwInit();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-
-        // open window (GL canvas) with no special properties
-        // https://www.glfw.org/docs/latest/quick.html#quick_create_window
-		load_json("config.json");
-        /*int window_width = 800;
-        int window_height = 600;*/
-        window = glfwCreateWindow(width, height, "OpenGL context", NULL, NULL);
-        glfwMakeContextCurrent(window);
-        /*this->width = window_width;
-        this->height = window_height;*/
+        
 
         // init glew
         // http://glew.sourceforge.net/basic.html
@@ -82,16 +68,8 @@ bool App::init()
             throw std::runtime_error("GL_DEBUG NOT SUPPORTED!");
             //std::cout << "GL_DEBUG NOT SUPPORTED!" << std::endl;
 
-		glfwSwapInterval(vsync ? 1 : 0);
-		std::cout << "Vsync " << (!vsync ? "enabled" : "disabled") << std::endl;
-
-		glfwSetWindowUserPointer(window, this);
-        glfwSetKeyCallback(window, key_callback);
-        glfwSetFramebufferSizeCallback(window, fbsize_callback);
-        glfwSetMouseButtonCallback(window, mouse_button_callback);
-        glfwSetCursorPosCallback(window, cursor_position_callback);
-        glfwSetScrollCallback(window, scroll_callback);
-
+        glfwSwapInterval(vsync ? 1 : 0);
+        std::cout << "Vsync " << (!vsync ? "enabled" : "disabled") << std::endl;
 
 		if (!GLEW_ARB_direct_state_access)
 			throw std::runtime_error("DSA not supported!");
@@ -108,7 +86,44 @@ bool App::init()
         //throw;
     }
     std::cout << "Initialized...\n";
+	glfwShowWindow(window); // show window after all is set up
     return true;
+}
+
+void App::initGLFW(void) {
+    // init glfw
+    // https://www.glfw.org/documentation.html
+    glfwSetErrorCallback(error_callback);
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // window is not visible until created
+
+	//load attributes from JSON file
+    load_json("config.json");
+
+    window = glfwCreateWindow(width, height, "OpenGL context", NULL, NULL);
+
+    if (!window) {
+		throw std::runtime_error("Failed to create GLFW window!");
+    }
+
+	glfwSetWindowUserPointer(window, this);
+
+    glfwMakeContextCurrent(window);
+
+    //disable mouse cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	//Callback functions for GLFW
+    glfwSetWindowUserPointer(window, this);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, fbsize_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 }
 
 void App::load_json(const std::filesystem::path& json_file) {

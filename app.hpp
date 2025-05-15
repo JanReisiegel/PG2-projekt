@@ -61,6 +61,7 @@ private:
     void getInfo(GLenum, const std::string&, bool);
     void getFPS();
     void initGlew(void);
+	void initGLFW(void);
     void init_assets(void);
     s_lights initLights(void);
     void update_projection_matrix(void);
