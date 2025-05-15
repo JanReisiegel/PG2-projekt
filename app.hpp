@@ -26,6 +26,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// ImGUI headers
+#include <imgui.h>               // main ImGUI header
+#include <imgui_impl_glfw.h>     // GLFW bindings
+#include <imgui_impl_opengl3.h>  // OpenGL bindings
+
 #include "gl_err_callback.hpp"
 #include "callbacks.hpp"
 #include "assets.hpp"
@@ -41,10 +46,13 @@ public:
     glm::vec2 get_subtex_by_height(float);
     glm::vec2 get_subtex_st(const int, const int);
     Model init_hm(void);
+	void init_imgui(void);
+	void render_imgui(void);
     Model GenHeightMap(const cv::Mat&, const unsigned int);
     bool fullScreen{ false };
     bool mouseCursorIsCatched{ false };
     bool vsync;
+    bool pause{ false };
 
     ~App();
 private:
@@ -56,7 +64,8 @@ private:
 	int windowWidth{ 800 }, windowHeight{ 600 };
     GLFWmonitor* monitor{ nullptr };
     const GLFWvidmode* mode{ nullptr };
-
+	bool show_imgui{ true };
+    int FPS;
 
     void getInfo(GLenum, const std::string&, bool);
     void getFPS();

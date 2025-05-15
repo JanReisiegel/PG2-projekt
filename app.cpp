@@ -4,9 +4,10 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
-
 #include "app.hpp"
 #include "json.hpp"
+#include "imgui_toggle/imgui_toggle.h"
+#include "imgui_toggle/imgui_toggle_presets.h"
 using json = nlohmann::json;
 
 GLFWwindow* window = nullptr; // move App class 
@@ -76,9 +77,12 @@ bool App::init()
         
         glEnable(GL_DEPTH_TEST);
         App::init_assets();
+		App::init_imgui();
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthFunc(GL_LEQUAL);
+		std::string title = std::string("OpenGL context: ").append(std::to_string(width)).append("x").append(std::to_string(height));
+        glfwSetWindowTitle(window, title.c_str());
     }
     catch (std::exception const& e) {
         throw std::runtime_error(e.what());
@@ -170,6 +174,56 @@ void App::load_json(const std::filesystem::path& json_file) {
 
 }
 
+void App::render_imgui(void) {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    if (App::show_imgui) {
+        ImGui::NewFrame();
+        //ImGui::ShowDemoWindow(); // Enable mouse when using Demo!
+        ImGui::SetNextWindowPos(ImVec2(10, 10));
+        ImGui::SetNextWindowSize(ImVec2(250, 100));
+
+        ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("V-Sync: %s", vsync ? "ON" : "OFF");
+        ImGui::Text("FPS: %d", FPS);
+        ImGui::End();
+    }
+    if (App::pause) {
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+
+		ImVec2 imguiSize = ImVec2(300, 200);
+		ImVec2 imguiPos = ImVec2((width - imguiSize.x) / 2, (height - imguiSize.y) / 2);
+
+        ImGui::SetNextWindowSize(imguiSize, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(imguiPos, ImGuiCond_Always);
+
+        ImGui::Begin("Pause", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+
+        ImGui::Text("Game is paused.");
+        if (ImGui::Button("Continue"))
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            mouseCursorIsCatched = true;
+            pause = false;
+        }
+
+        if (ImGui::Button("End game"))
+        {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+
+        ImGuiToggleConfig toggle_config = ImGuiTogglePresets::MaterialStyle();
+
+        if (ImGui::Toggle("VSync", &vsync, toggle_config)) {
+			glfwSwapInterval(vsync ? 1 : 0);
+        }
+
+
+        ImGui::End();
+    }
+}
+
 int App::run(void)
 {
     try {
@@ -199,6 +253,8 @@ int App::run(void)
 
         while (!glfwWindowShouldClose(window))
         {
+            render_imgui();
+
             double current_time = glfwGetTime();
             double delta_t = current_time - last_frame_time;// render time of the last frame 
             last_frame_time = current_time;
@@ -207,6 +263,7 @@ int App::run(void)
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			
 
             //########## react to user  ##########
             glm::vec3 move = camera.ProcessInput(window, delta_t);
@@ -284,6 +341,10 @@ int App::run(void)
 			glDepthMask(GL_TRUE);
 			glEnable(GL_CULL_FACE);
 
+            if (show_imgui) {
+                ImGui::Render();
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            }
 
             // Swap front and back buffers
             glfwSwapBuffers(window);
@@ -307,6 +368,11 @@ int App::run(void)
 
 App::~App()
 {
+    //clean up ImGUI
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
 	//glDeleteProgram(shader_prog_ID);
 	//glDeleteVertexArrays(1, &vao_ID);
 	//glDeleteBuffers(1, &vbo_ID);
@@ -514,9 +580,8 @@ void App::getFPS() {
     std::chrono::duration<double> elapsed_seconds = now - frame_time;
     if (elapsed_seconds.count() >= 1)
     {
-        std::string vsync_mode = App::vsync ? "enabled" : "disabled";
-		std::string title = std::string("FPS: ").append(std::to_string(frames)).append(std::string(" VSync ")).append(vsync_mode);
-        glfwSetWindowTitle(window, title.c_str());
+		FPS = frames / (float)elapsed_seconds.count();
+        
         frames = 0;
         frame_time = now;
     }
@@ -743,6 +808,15 @@ Model App::init_hm(void)
         std::cout << "Note: height map vertices: " << height_map.meshes[0].vertices.size() << std::endl;
         return height_map;
     }
+}
+
+void App::init_imgui(void) {
+    // ImGui init
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+    std::cout << "ImGUI version: " << ImGui::GetVersion() << "\n";
 }
 
 //return bottom left ST coordinate of subtexture
