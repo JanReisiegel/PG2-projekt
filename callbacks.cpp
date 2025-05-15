@@ -72,6 +72,12 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
 				}
 			}
 			break;
+		case GLFW_KEY_O: {
+			if(action == GLFW_PRESS) {
+				app_instance->change_screen_mode();
+			}
+			break;
+		}
 		default:
 			break;
 	}

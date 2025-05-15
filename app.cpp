@@ -774,6 +774,25 @@ Model App::GenHeightMap(const cv::Mat& hmap, const unsigned int mesh_step_size)
     return m;
 }
 
+void App::change_screen_mode() {
+	App::fullScreen = !App::fullScreen;
+
+	monitor = glfwGetPrimaryMonitor();
+	mode = glfwGetVideoMode(monitor);
+
+    if (App::fullScreen) {
+		glfwGetWindowPos(window, &windowPositionX, &windowPositionY);
+		glfwGetWindowSize(window, &windowWidth, &windowHeight);
+		std::cout << "Windowed mode" << std::endl;
+		std::cout << "Window position: " << windowPositionX << ", " << windowPositionY << std::endl;
+		std::cout << "Window size: " << windowWidth << ", " << windowHeight << std::endl;
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    }
+    else {
+        glfwSetWindowMonitor(window, nullptr, windowPositionX, windowPositionY, windowWidth, windowHeight, 0);
+    }
+
+}
 
 
 
