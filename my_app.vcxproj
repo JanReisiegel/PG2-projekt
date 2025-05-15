@@ -172,6 +172,7 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="callbacks.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
