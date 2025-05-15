@@ -51,6 +51,11 @@ private:
     int frames;
     std::chrono::steady_clock::time_point frame_time;
     GLFWwindow* window;
+	bool fullScreen{ false };
+    int windowPositionX{ 0 }, windowPositionY{ 0 };
+	GLFWmonitor* monitor{ nullptr };
+	const GLFWvidmode* mode{ nullptr };
+
 
     void getInfo(GLenum, const std::string&, bool);
     void getFPS();
@@ -62,6 +67,7 @@ private:
     uchar getmap(cv::Mat& map, int x, int y);
     void genLabyrinth(cv::Mat& map);
 	void load_json(const std::filesystem::path& json_file);
+    void change_screen_mode();
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
