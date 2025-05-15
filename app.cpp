@@ -256,11 +256,25 @@ int App::run(void)
                 float newZ = camera.Position.z + move.z;
                 char labyrinth_object = getmap(mapa, newX + 0.5, newZ + 0.5);
                 if (labyrinth_object == '#' || labyrinth_object == '@') {
-                    labyrinth_object = getmap(mapa, camera.Position.x + 0.5 , newZ + 0.5);
+                    float checkZ = newZ;
+                    if (move.z > 0) {
+                        checkZ += 0.2f;
+                    }
+                    if (move.z < 0) {
+                        checkZ -=  0.2f;
+                    }
+                    labyrinth_object = getmap(mapa, camera.Position.x + 0.5 , checkZ + 0.5);
                     if (labyrinth_object != '#' && labyrinth_object != '@') {
                         camera.Position.z = newZ;
                     }
-                    labyrinth_object = getmap(mapa, newX + 0.5, camera.Position.z + 0.5);
+                    float checkX = newX;
+                    if (move.x > 0) {
+                        checkX += 0.2f;
+                    }
+                    if (move.x < 0) {
+                        checkX -= 0.2f;
+                    }
+                    labyrinth_object = getmap(mapa, checkX + 0.5, camera.Position.z + 0.5);
                     if (labyrinth_object != '#' && labyrinth_object != '@') {
                         camera.Position.x = newX;
                     }
