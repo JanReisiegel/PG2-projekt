@@ -41,8 +41,8 @@ glm::vec3 Camera::ProcessInput(GLFWwindow* window, GLfloat deltaTime)
         }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        direction.y += -1.0f;
+    /*if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        direction.y += -1.0f;*/
 
     if (glm::length(direction) > 0.0f)
         direction = glm::normalize(direction) * MovementSpeed;
