@@ -48,7 +48,7 @@ out VS_OUT {
     vec2 texCoord;
 } vs_out;
 
-out vec3 spotlight_dir;
+// out vec3 spotlight_dir;
 
 void main(void) {
     // Create Model-View matrix
@@ -67,14 +67,15 @@ void main(void) {
         // Calculate light vector in view space
         vec3 light_position_view = vec3(uV_m * lights.position[i]);
         if (lights.position[i].w == 0.0){
+            // directional 
             vs_out.L[i] = light_position_view.xyz;
-            //vs_out.spot_dir[i] = vec3(0,0,0);
         } else if (lights.cos_cutoff[i] == 180.0){
+            // point
             vs_out.L[i] = light_position_view - P.xyz;
-            //vs_out.spot_dir[i] = vec3(0,0,0);
         } else {
+            // spotlight
             vs_out.L[i] = light_position_view - P.xyz;
-            spotlight_dir = normalize(mat3(uV_m) * lights.spot_direction[i]);
+            //spotlight_dir = normalize(mat3(uV_m) * lights.spot_direction[i]);
         }
     }
     // Calculate view vector (negative of the view-space position)

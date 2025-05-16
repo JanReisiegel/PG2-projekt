@@ -29,6 +29,9 @@ public:
     float reflectivity{1.0f}; 
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
+
+    glm::vec3 AABB_max;
+    glm::vec3 AABB_min;
     
     // indirect (indexed) draw 
     Mesh(

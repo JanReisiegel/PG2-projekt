@@ -66,6 +66,7 @@ private:
     const GLFWvidmode* mode{ nullptr };
 	bool show_imgui{ true };
     int FPS;
+    int score{ 0 };
 
     void getInfo(GLenum, const std::string&, bool);
     void getFPS();
@@ -80,6 +81,7 @@ private:
     void genLabyrinth(cv::Mat& map);
 	void load_json(const std::filesystem::path& json_file);
     void change_screen_mode();
+    bool intersect(glm::vec3 point, Mesh& mesh);
 
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);

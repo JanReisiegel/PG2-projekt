@@ -46,7 +46,7 @@ in VS_OUT {
     vec2 texCoord;
 } fs_in;
 
-in vec3 spotlight_dir;
+//in vec3 spotlight_dir;
 
 void main(void) {
     vec3 ambient = vec3(0.0);
@@ -64,13 +64,13 @@ void main(void) {
 
         // Calculate the ambient, diffuse and specular contributions
         if (lights.position[i].w == 0.0){
-            //directional
+            // directional
             ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
             diffuse += lights.color[i] * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
             specular += lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
                 * lights.specular_material[i] * lights.specular_intensity[i];
         }else if (lights.cos_cutoff[i] == 180.0){
-            //point
+            // point
             float d = length(fs_in.L[i]);
             float dist_attenuation = 1.0 / (lights.constant[i] + lights.linear[i] * d + lights.quadratic[i] * d * d);
             ambient += lights.color[i] * lights.ambient_material[i] * lights.ambient_intensity[i];
@@ -78,7 +78,8 @@ void main(void) {
             specular += dist_attenuation * lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
                 * lights.specular_material[i] * lights.specular_intensity[i];
         }else{
-            //spot
+            // spotlight (doesnt work)
+            /*
             vec3 spot_dir = normalize(spotlight_dir);
             float d = length(fs_in.L[i]);
             float dist_attenuation = 1.0 / (lights.constant[i] + lights.linear[i] * d + lights.quadratic[i] * d * d);
@@ -91,6 +92,7 @@ void main(void) {
             diffuse += full_attenuation * max(dot(N, L), 0.0) * lights.diffuse_material[i] * lights.diffuse_intensity[i];
             specular += full_attenuation * lights.color[i] * pow(max(dot(R, V), 0.0), lights.specular_shinines[i])
                 * lights.specular_material[i] * lights.specular_intensity[i];
+            */
         }
     }
 

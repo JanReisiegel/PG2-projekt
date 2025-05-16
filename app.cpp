@@ -291,7 +291,7 @@ int App::run(void)
 
             std::vector<Model*> transparent;
             transparent.reserve(scene.size());
-
+            std::string to_erase;
             for (auto& [name, model] : scene) {
                 model.shader.setUniform("uV_m", camera.GetViewMatrix());
                 model.shader.setUniform("uP_m", projection_matrix);
@@ -313,17 +313,26 @@ int App::run(void)
                     if (name == "sun") {
                         model.origin.z = std::cos(angle) * 22.0f / model.scale.x;
                         model.origin.y = std::sin(angle) * 22.0f / model.scale.x;
-                        //model.orientation.x = angle;
                     }
                     lights.position[0].z = std::cos(angle) * 20.0f;
                     lights.position[0].y = std::sin(angle) * 20.0f;
                     lights.position[5] = glm::vec4(camera.Position, 1.0);
-                    lights.spot_direction[5] = camera.Front;
+                    //lights.spot_direction[5] = camera.Front;
                     model.shader.setUniform("lights.position", lights.position);
                     angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
                     //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
+                    if (name.starts_with("treasure")) {
+                        if (intersect(camera.Position, model.meshes[0])) {
+                            score++;
+                            model.clear();
+                            to_erase = name;
+                        }
+                    }
                 }
 			}
+            if (!to_erase.empty()) {
+                scene.erase(to_erase);
+            }
 
             std::sort(transparent.begin(), transparent.end(), [&](Model const* a, Model const* b) {
                 glm::vec3 translation_a = glm::vec3(a->local_model_matrix[3]);  // get 3 values from last column of model matrix = translation
@@ -495,16 +504,15 @@ s_lights App::initLights(void) {
     lights.specular_shinines[4] = 20.0f;
     lights.specular_shinines[5] = 66.0f;
 
-    //spotlight
+    // Spotlight (doesn't work)
     lights.cos_cutoff[0] = 180.0f;
     lights.cos_cutoff[1] = 180.0f;
     lights.cos_cutoff[2] = 180.0f;
     lights.cos_cutoff[3] = 180.0f;
     lights.cos_cutoff[4] = 180.0f;
     lights.cos_cutoff[5] = 180.0f; //std::cos(glm::radians(static_cast<float>(30.0f)));
-    lights.spot_exponent[5] = 8.0f;
 
-    //attenuation
+    // Attenuation
     // sun
     lights.constant[0] = 1.0f;
     lights.linear[0] = 0.014f;
@@ -533,8 +541,8 @@ s_lights App::initLights(void) {
         model.shader.setUniform("lights.specular_shinines", lights.specular_shinines);
 
         model.shader.setUniform("lights.cos_cutoff", lights.cos_cutoff);
-        model.shader.setUniform("lights.spot_direction", lights.spot_direction);
-        model.shader.setUniform("lights.spot_exponent", lights.spot_exponent);
+        //model.shader.setUniform("lights.spot_direction", lights.spot_direction);
+        //model.shader.setUniform("lights.spot_exponent", lights.spot_exponent);
 
         model.shader.setUniform("lights.constant", lights.constant);
         model.shader.setUniform("lights.linear", lights.linear);
@@ -680,7 +688,7 @@ void App::genLabyrinth(cv::Mat& map) {
     std::default_random_engine e1(r());
     std::uniform_int_distribution<int> uniform_height(1, map.rows - 2); // uniform distribution between int..int
     std::uniform_int_distribution<int> uniform_width(1, map.cols - 2);
-    std::uniform_int_distribution<int> uniform_block(0, 10); // how often are walls generated: 0=wall, anything else=empty
+    std::uniform_int_distribution<int> uniform_block(0, 15); // how often are walls generated: 0=wall, anything else=empty
 
     //inner maze 
     for (int j = 0; j < map.rows; j++) {
@@ -691,7 +699,13 @@ void App::genLabyrinth(cv::Mat& map) {
                 map.at<uchar>(cv::Point(i, j)) = '#';
                 break;
             case 1:
+                map.at<uchar>(cv::Point(i, j)) = '#';
+                break;
+            case 2:
                 map.at<uchar>(cv::Point(i, j)) = 'w';
+                break;
+            case 3:
+                map.at<uchar>(cv::Point(i, j)) = 'o';
                 break;
             default:
                 map.at<uchar>(cv::Point(i, j)) = '.';
@@ -744,11 +758,26 @@ void App::genLabyrinth(cv::Mat& map) {
     ShaderProgram wall_shader = globalShader;
     bool transparent;
     int box_num = 0;
+    GLuint gold = textureInit("resources/gold.png", transparent);
+    GLuint grass_tex = textureInit("resources/grass_tall.png", transparent);
+    GLuint box_t = textureInit("resources/wall.jpg", transparent);
     for (int j = 0; j < map.rows; j++) {
         for (int i = 0; i < map.cols; i++) {
+            if (getmap(map, i, j) == 'o') {
+                Model treasure = Model("resources/bunny_tri_vnt.obj", wall_shader);
+                treasure.meshes[0].texture_id = gold;
+                treasure.transparent = false;
+                float scale = 0.05;
+                treasure.scale *= scale;
+                treasure.origin.x = i * (1 / scale);
+                treasure.origin.z = j * (1 / scale);
+                treasure.origin.y = -0.36 * (1 / scale);
+                treasure.meshes[0].AABB_max = glm::vec3(i+0.45, 2, j+0.45);
+                treasure.meshes[0].AABB_min = glm::vec3(i-0.45, -0.1, j-0.45);
+                scene.emplace("treasure" + std::to_string(box_num), treasure);
+            }
             if (getmap(map, i, j) == 'w') {
                 Model grass1 = Model("resources/square.obj", wall_shader);
-                GLuint grass_tex = textureInit("resources/grass_tall.png", transparent);
                 grass1.meshes[0].texture_id = grass_tex;
                 grass1.transparent = true;
                 grass1.origin.x = i;
@@ -757,7 +786,6 @@ void App::genLabyrinth(cv::Mat& map) {
             }
             if (getmap(map, i, j) == '#') {
                 Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
-                GLuint box_t = textureInit("resources/wall.jpg", transparent);
                 box.meshes[0].texture_id = box_t;
                 box.transparent = false;
                 box.origin.x = i;
@@ -769,7 +797,6 @@ void App::genLabyrinth(cv::Mat& map) {
             }
             if (getmap(map, i, j) == '@') {
                 Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
-                GLuint box_t = textureInit("resources/wall.jpg", transparent);
                 box.meshes[0].texture_id = box_t;
                 box.transparent = false;
                 box.origin.x = i;
@@ -786,8 +813,8 @@ void App::genLabyrinth(cv::Mat& map) {
 
 
     //set player position in 3D space (transform X-Y in map to XYZ in GL)
-    camera.Position.x = (start_position.x) + 1.0 / 2.0f;
-    camera.Position.z = (start_position.y) + 1.0 / 2.0f;
+    camera.Position.x = (start_position.x); //+ 1.0 / 2.0f;
+    camera.Position.z = (start_position.y); //+ 1.0 / 2.0f;
     camera.Position.y = camera.Height;
 }
 
@@ -953,8 +980,13 @@ void App::change_screen_mode() {
     }
 }
 
-
-
+bool App::intersect(glm::vec3 point, Mesh& mesh) {
+    //std::cout << point.x << " " << point.y << " " << point.z << " | " << mesh.AABB_max.x << " " << mesh.AABB_max.y << " " << mesh.AABB_max.z << " | " << mesh.AABB_max.x << " " << mesh.AABB_max.y << " " << mesh.AABB_max.z << std::endl;
+    return
+        point.x >= mesh.AABB_min.x && point.x <= mesh.AABB_max.x &&
+        point.y >= mesh.AABB_min.y && point.y <= mesh.AABB_max.y &&
+        point.z >= mesh.AABB_min.z && point.z <= mesh.AABB_max.z;
+}
 
 
 
