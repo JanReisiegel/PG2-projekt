@@ -82,6 +82,9 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
 				if (app_instance->pause) {
 					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 					app_instance->mouseCursorIsCatched = false;
+				}else{
+					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					app_instance->mouseCursorIsCatched = true;
 				}
 				break;
 			}
