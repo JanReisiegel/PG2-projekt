@@ -46,6 +46,7 @@ in VS_OUT {
     vec2 texCoord;
 } fs_in;
 
+in vec3 spotlight_dir;
 
 void main(void) {
     vec3 ambient = vec3(0.0);
@@ -78,9 +79,10 @@ void main(void) {
                 * lights.specular_material[i] * lights.specular_intensity[i];
         }else{
             //spot
-            float d = length(L);
+            vec3 spot_dir = normalize(spotlight_dir);
+            float d = length(fs_in.L[i]);
             float dist_attenuation = 1.0 / (lights.constant[i] + lights.linear[i] * d + lights.quadratic[i] * d * d);
-            float spotEffect = dot(normalize(lights.spot_direction[i]), -L);
+            float spotEffect = dot(spot_dir, -L);
             float full_attenuation = 0.0;
             if (spotEffect > lights.cos_cutoff[i]){
                 full_attenuation = dist_attenuation * pow(spotEffect, lights.spot_exponent[i]);

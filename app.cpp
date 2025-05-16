@@ -266,25 +266,27 @@ int App::run(void)
 			
 
             //########## react to user  ##########
-            glm::vec3 move = camera.ProcessInput(window, delta_t);
-            if (glm::length(move) > 0)
-            {
-                //collision
-                float radius = 0.15f;
-                float newZ = camera.Position.z + move.z;              
-                float checkZ = newZ + (move.z > 0 ? radius : -radius);
-                char labyrinth_object = getmap(mapa, camera.Position.x + 0.5 , checkZ + 0.5);
-                if (labyrinth_object != '#' && labyrinth_object != '@') {
-                    camera.Position.z = newZ;
+            if (!pause) {
+                glm::vec3 move = camera.ProcessInput(window, delta_t);
+                if (glm::length(move) > 0)
+                {
+                    //collision
+                    float radius = 0.15f;
+                    float newZ = camera.Position.z + move.z;
+                    float checkZ = newZ + (move.z > 0 ? radius : -radius);
+                    char labyrinth_object = getmap(mapa, camera.Position.x + 0.5, checkZ + 0.5);
+                    if (labyrinth_object != '#' && labyrinth_object != '@') {
+                        camera.Position.z = newZ;
 
+                    }
+                    float newX = camera.Position.x + move.x;
+                    float checkX = newX + (move.x > 0 ? radius : -radius);
+                    labyrinth_object = getmap(mapa, checkX + 0.5, camera.Position.z + 0.5);
+                    if (labyrinth_object != '#' && labyrinth_object != '@') {
+                        camera.Position.x = newX;
+                    }
+                    camera.Position.y += move.y;
                 }
-                float newX = camera.Position.x + move.x;
-                float checkX = newX + (move.x > 0 ? radius : -radius);
-                labyrinth_object = getmap(mapa, checkX + 0.5, camera.Position.z + 0.5);
-                if (labyrinth_object != '#' && labyrinth_object != '@') {
-                    camera.Position.x = newX;
-                }
-                camera.Position.y += move.y;
             }
 
             std::vector<Model*> transparent;
@@ -307,18 +309,20 @@ int App::run(void)
                 }
                 //model.draw();
                 //model.second.draw(glm::vec3(0.0f),
-                if (name == "sun") {
-                    model.origin.z = std::cos(angle) * 22.0f / model.scale.x;
-                    model.origin.y = std::sin(angle) * 22.0f / model.scale.x;
-                    //model.orientation.x = angle;
+                if (!pause) {
+                    if (name == "sun") {
+                        model.origin.z = std::cos(angle) * 22.0f / model.scale.x;
+                        model.origin.y = std::sin(angle) * 22.0f / model.scale.x;
+                        //model.orientation.x = angle;
+                    }
+                    lights.position[0].z = std::cos(angle) * 20.0f;
+                    lights.position[0].y = std::sin(angle) * 20.0f;
+                    lights.position[5] = glm::vec4(camera.Position, 1.0);
+                    lights.spot_direction[5] = camera.Front;
+                    model.shader.setUniform("lights.position", lights.position);
+                    angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
+                    //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
                 }
-                lights.position[0].z = std::cos(angle) * 20.0f;
-                lights.position[0].y = std::sin(angle) * 20.0f;
-                lights.position[5] = glm::vec4(camera.Position, 1.0);
-                lights.spot_direction[5] = camera.Front;
-                model.shader.setUniform("lights.position", lights.position);
-                angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
-                //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
 			}
 
             std::sort(transparent.begin(), transparent.end(), [&](Model const* a, Model const* b) {
@@ -424,10 +428,10 @@ s_lights App::initLights(void) {
 
     // Positions
     lights.position[0] = glm::vec4(0, 0, 0, 1); //sun
-    lights.position[1] = glm::vec4(0, -1, -0.2, 0.0); //glm::vec4(10, 10, 25, 1);
-    lights.position[2] = glm::vec4(10, 10, 0, 1);
-    lights.position[3] = glm::vec4(25, 10, 10, 1);
-    lights.position[4] = glm::vec4(0, 10, 0, 1);
+    lights.position[1] = glm::vec4(0.3, 1, 0.3, 0.0); //glm::vec4(10, 10, 25, 1);
+    lights.position[2] = glm::vec4(2, 2, 2, 1);
+    lights.position[3] = glm::vec4(23, 2, 7, 1);
+    lights.position[4] = glm::vec4(23, 2, 2, 1);
     lights.position[5] = glm::vec4(0, 0, 0, 1); //camera
 
     // Colors
@@ -437,13 +441,13 @@ s_lights App::initLights(void) {
     lights.color[3] = glm::vec3(1.0, 0.95, 0.8);
     lights.color[4] = glm::vec3(0.8, 0.9, 1.0);*/
     lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
-    lights.color[1] = glm::vec3(1.0, 1.0, 1.0);
-    lights.color[2] = glm::vec3(0.0, 0.0, 0.0);
-    lights.color[3] = glm::vec3(1.0, 1.0, 1.0);
-    lights.color[4] = glm::vec3(0.0, 0.0, 0.0);
-    lights.color[5] = glm::vec3(0.1, 0.4, 1.0);
+    lights.color[1] = glm::vec3(0.4, 0.4, 0.4);
+    lights.color[2] = glm::vec3(0.3, 0.0, 0.8);
+    lights.color[3] = glm::vec3(0.8, 0.4, 0.4);
+    lights.color[4] = glm::vec3(0.8, 0.4, 0.8);
+    lights.color[5] = glm::vec3(0.6, 0.8, 1.0);
 
-    // Ambient Intensities
+    // Ambient
     lights.ambient_intensity[0] = glm::vec3(0.3, 0.3, 0.25);
     lights.ambient_intensity[1] = glm::vec3(0.2, 0.2, 0.2);
     lights.ambient_intensity[2] = glm::vec3(0.15, 0.15, 0.2);
@@ -451,7 +455,7 @@ s_lights App::initLights(void) {
     lights.ambient_intensity[4] = glm::vec3(0.18, 0.2, 0.25);
     lights.ambient_intensity[5] = glm::vec3(0.1, 0.15, 0.3);
 
-    // Diffuse Intensities
+    // Diffuse
     lights.diffuse_intensity[0] = glm::vec3(0.9, 0.9, 0.8);
     lights.diffuse_intensity[1] = glm::vec3(0.7, 0.7, 0.7);
     lights.diffuse_intensity[2] = glm::vec3(0.6, 0.6, 0.7);
@@ -459,7 +463,7 @@ s_lights App::initLights(void) {
     lights.diffuse_intensity[4] = glm::vec3(0.5, 0.6, 0.8);
     lights.diffuse_intensity[5] = glm::vec3(0.8, 0.8, 1.0);
 
-    // Specular Intensities
+    // Specular
     lights.specular_intensity[0] = glm::vec3(1.0, 1.0, 1.0);
     lights.specular_intensity[1] = glm::vec3(0.7, 0.7, 0.7);
     lights.specular_intensity[2] = glm::vec3(0.6, 0.6, 0.7);
@@ -484,12 +488,12 @@ s_lights App::initLights(void) {
     lights.specular_material[5] = glm::vec3(0.6, 0.7, 1.0);
 
     // Shininess
-    lights.specular_shinines[0] = 64.0f;
-    lights.specular_shinines[1] = 32.0f;
-    lights.specular_shinines[2] = 24.0f;
-    lights.specular_shinines[3] = 48.0f;
-    lights.specular_shinines[4] = 40.0f;
-    lights.specular_shinines[5] = 96.0f;
+    lights.specular_shinines[0] = 34.0f;
+    lights.specular_shinines[1] = 12.0f;
+    lights.specular_shinines[2] = 14.0f;
+    lights.specular_shinines[3] = 28.0f;
+    lights.specular_shinines[4] = 20.0f;
+    lights.specular_shinines[5] = 66.0f;
 
     //spotlight
     lights.cos_cutoff[0] = 180.0f;
@@ -497,32 +501,25 @@ s_lights App::initLights(void) {
     lights.cos_cutoff[2] = 180.0f;
     lights.cos_cutoff[3] = 180.0f;
     lights.cos_cutoff[4] = 180.0f;
-    lights.cos_cutoff[5] = std::cos(glm::radians(static_cast<float>(15.0)));
-    lights.spot_exponent[5] = 8.0;
+    lights.cos_cutoff[5] = 180.0f; //std::cos(glm::radians(static_cast<float>(30.0f)));
+    lights.spot_exponent[5] = 8.0f;
 
     //attenuation
     // sun
     lights.constant[0] = 1.0f;
     lights.linear[0] = 0.014f;
     lights.quadratic[0] = 0.0007f;
-
     // lights
     for (int i = 1; i < 5; ++i) {
         lights.constant[i] = 1.0f;
-        lights.linear[i] = 1.22f;
-        lights.quadratic[i] = 1.20f;
+        lights.linear[i] = 0.12f;
+        lights.quadratic[i] = 0.02f;
     }
-
     // flashlight
     lights.constant[5] = 1.0f;
-    lights.linear[5] = 0.14f;
-    lights.quadratic[5] = 0.07f;
-    /*lights.constant[2] = 5.0f;
-    lights.linear[2] = 3.22f;
-    lights.quadratic[2] = 2.20f;
-    lights.constant[5] = 5.0f;
-    lights.linear[5] = 3.22f;
-    lights.quadratic[5] = 2.20f;*/
+    lights.linear[5] = 0.24f;
+    lights.quadratic[5] = 0.09f;
+
 
     for (auto& [name, model] : scene) {
         model.shader.setUniform("lights.position", lights.position);
