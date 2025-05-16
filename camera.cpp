@@ -14,7 +14,8 @@ glm::mat4 Camera::GetViewMatrix(void)
     return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
 }
 
-glm::vec3 Camera::ProcessInput(GLFWwindow* window, GLfloat deltaTime) {
+glm::vec3 Camera::ProcessInput(GLFWwindow* window, GLfloat deltaTime) 
+{
     glm::vec3 direction{ 0 };
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -30,23 +31,35 @@ glm::vec3 Camera::ProcessInput(GLFWwindow* window, GLfloat deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         direction += RightSide;
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
         direction.y += 1.0f;
 
-    /*if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-
-    }*/
-
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if (can_jump) {
+            can_jump = false;
+            jump_velocity = 1.5f;
+        }
+    }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         direction.y += -1.0f;
 
-    direction = glm::normalize(direction);
+    if (glm::length(direction) > 0.0f)
+        direction = glm::normalize(direction) * MovementSpeed;
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         direction *= SprintMultiplier;
 
-    return direction * MovementSpeed * deltaTime;
+    if (!can_jump) {
+        direction.y += jump_velocity;
+        jump_velocity -= gravity;
+        if (Position.y <= 0.5f) {
+            Position.y = 0.5f;
+            can_jump = true;
+        }
+    }
+
+    return direction * deltaTime;
 }
 
 void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constraintPitch)

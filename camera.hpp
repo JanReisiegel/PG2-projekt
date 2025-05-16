@@ -36,16 +36,18 @@ public:
     glm::vec3 Up; // camera local UP vector
     glm::vec3 WorldUp;
 
-	GLfloat Height = 1.0f;
+	GLfloat Height = 0.5f;
 
     GLfloat Yaw = -90.0f;
     GLfloat Pitch =  0.0f;
     GLfloat Roll = 0.0f;
     
-    // Camera options
-    GLfloat MovementSpeed = 1.2f;
+    GLfloat MovementSpeed = 2.0f;
     GLfloat SprintMultiplier = 2.0f;
     GLfloat MouseSensitivity = 0.25f;
+    GLfloat gravity = 0.02f;
+    GLfloat jump_velocity;
+    GLboolean can_jump = true;
 
     Camera(glm::vec3 position);
 
