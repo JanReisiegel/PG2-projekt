@@ -45,3 +45,5 @@ CMakeCache.txt
 CMakeFiles/
 Makefile
 CMakeSettings.json
+
+imgui.ini
