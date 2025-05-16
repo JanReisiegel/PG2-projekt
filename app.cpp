@@ -228,13 +228,9 @@ void App::render_imgui(void) {
 		toggle_config.Size.x = toggle_width;
 		toggle_config.Size.y = buttonHeight;
 		std::string label = "V-Sync";
-        // Zjisti šířku textu a toggle pro zarovnání
-        float labelWidth = ImGui::CalcTextSize(label.c_str()).x;
-        float toggleWidth = 60.0f; // přibližná šířka, pokud chceš přesně, změř vlastní widget
-        float availableWidth = ImGui::GetContentRegionAvail().x;
         
         ImGui::SetCursorPosX(centerX);
-        if (ImGui::Toggle("VSync", &vsync, toggle_config)) {
+        if (ImGui::Toggle(label.c_str(), &vsync, toggle_config)) {
 			glfwSwapInterval(vsync ? 1 : 0);
         }
 
