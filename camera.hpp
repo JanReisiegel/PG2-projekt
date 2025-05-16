@@ -43,9 +43,9 @@ public:
     GLfloat Roll = 0.0f;
     
     GLfloat MovementSpeed = 2.0f;
-    GLfloat SprintMultiplier = 2.0f;
+    GLfloat SprintMultiplier = 1.5f;
     GLfloat MouseSensitivity = 0.25f;
-    GLfloat gravity = 0.02f;
+    GLfloat gravity = 4.3f;
     GLfloat jump_velocity;
     GLboolean can_jump = true;
 

@@ -52,7 +52,7 @@ glm::vec3 Camera::ProcessInput(GLFWwindow* window, GLfloat deltaTime)
 
     if (!can_jump) {
         direction.y += jump_velocity;
-        jump_velocity -= gravity;
+        jump_velocity -= gravity * deltaTime;
         if (Position.y <= 0.5f) {
             Position.y = 0.5f;
             can_jump = true;
