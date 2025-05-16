@@ -82,7 +82,7 @@ private:
 	void load_json(const std::filesystem::path& json_file);
     void change_screen_mode();
     bool intersect(glm::vec3 point, Mesh& mesh);
-
+    
     static void key_callback(GLFWwindow*, int, int, int, int);
     static void scroll_callback(GLFWwindow*, double, double);
 	static void fbsize_callback(GLFWwindow*, int, int);

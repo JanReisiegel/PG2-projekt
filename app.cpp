@@ -177,48 +177,66 @@ void App::load_json(const std::filesystem::path& json_file) {
 void App::render_imgui(void) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
+
+    ImGui::NewFrame();
     if (App::show_imgui) {
-        ImGui::NewFrame();
         //ImGui::ShowDemoWindow(); // Enable mouse when using Demo!
         ImGui::SetNextWindowPos(ImVec2(10, 10));
-        ImGui::SetNextWindowSize(ImVec2(250, 100));
+        ImGui::SetNextWindowSize(ImVec2(300, 100));
 
         ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("V-Sync: %s", vsync ? "ON" : "OFF");
         ImGui::Text("FPS: %d", FPS);
+		ImGui::Text("Camera position: (%.2f, %.2f, %.2f)", camera.Position.x, camera.Position.y, camera.Position.z);
+		ImGui::Text("Score: %d", score);
         ImGui::End();
     }
     if (App::pause) {
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
 
-		ImVec2 imguiSize = ImVec2(300, 200);
+		ImVec2 imguiSize = ImVec2(width/2, height/2);
 		ImVec2 imguiPos = ImVec2((width - imguiSize.x) / 2, (height - imguiSize.y) / 2);
 
         ImGui::SetNextWindowSize(imguiSize, ImGuiCond_Always);
         ImGui::SetNextWindowPos(imguiPos, ImGuiCond_Always);
 
+        float fullWidth = (width/2)-15;
+        float buttonHeight = 25.0f;
+
         ImGui::Begin("Pause", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
         ImGui::Text("Game is paused.");
-        if (ImGui::Button("Continue"))
+        if (ImGui::Button("Continue", ImVec2(fullWidth, buttonHeight)))
         {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             mouseCursorIsCatched = true;
             pause = false;
         }
 
-        if (ImGui::Button("End game"))
+        if (ImGui::Button("End game", ImVec2(fullWidth, buttonHeight)))
         {
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
 
-        ImGuiToggleConfig toggle_config = ImGuiTogglePresets::MaterialStyle();
+        ImGui::NewLine();
+        float toggle_width = buttonHeight * 3.0f;
 
+		float centerX = (width/2 - toggle_width) * 0.5f;
+
+        ImGuiToggleConfig toggle_config = ImGuiTogglePresets::MinecraftStyle();
+		toggle_config.Size.x = toggle_width;
+		toggle_config.Size.y = buttonHeight;
+		std::string label = "V-Sync";
+        // Zjisti šířku textu a toggle pro zarovnání
+        float labelWidth = ImGui::CalcTextSize(label.c_str()).x;
+        float toggleWidth = 60.0f; // přibližná šířka, pokud chceš přesně, změř vlastní widget
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        
+        ImGui::SetCursorPosX(centerX);
         if (ImGui::Toggle("VSync", &vsync, toggle_config)) {
 			glfwSwapInterval(vsync ? 1 : 0);
         }
-
 
         ImGui::End();
     }
