@@ -17,23 +17,17 @@ public:
 	glm::vec3 scale{1.0f};
 	glm::mat4 local_model_matrix{1.0f};
     glm::vec3 orientation{};
+
+    //jump
+    GLfloat gravity = 0.03f;
+    GLfloat jump_velocity;
+    GLboolean can_jump = true;
+
 	ShaderProgram shader; //{0};
 	GLuint texture_id{ 0 }; // texture id=0  means no texture
     bool transparent { false };
-    void addTexture(GLuint);
     Model(const std::filesystem::path& filename, ShaderProgram shader); //{
     Model(GLenum type, std::vector<Vertex> const& vertices, std::vector<GLuint> const& indices, ShaderProgram shader, GLuint const texture_id);
-        // load mesh (all meshes) of the model, (in the future: load material of each mesh, load textures...)
-        // TODO: call LoadOBJFile, LoadMTLFile (if exist), process data, create mesh and set its properties
-        //    notice: you can load multiple meshes and place them to proper positions, 
-        //            multiple textures (with reusing) etc. to construct single complicated Model   
-		
-    //}
-
-    // update position etc. based on running time
-    void update(const float delta_t) {
-        // origin += glm::vec3(3,0,0) * delta_t; // s = s0 + v*dt
-    }
     
     void draw(glm::vec3 const& offset = glm::vec3(0.0),
         glm::vec3 const& rotation = glm::vec3(0.0f),
@@ -46,6 +40,8 @@ public:
         std::vector < glm::vec2 >& out_uvs,
         std::vector < glm::vec3 >& out_normals
     );
+
+    void jump(float deltaTime);
     void clear(void);
 };
 

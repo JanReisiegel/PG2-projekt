@@ -329,12 +329,16 @@ int App::run(void)
                     angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
                     //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
                     if (name.starts_with("treasure")) {
-
                         if (intersect(camera.Position, model.meshes[0])) {
                             score++;
                             model.clear();
                             to_erase = name;
                         }
+                        if (model.can_jump) {
+                            model.can_jump = false;
+                            model.jump_velocity = 0.012f;
+                        }
+                        model.jump(delta_t);
                     }
 
                 }

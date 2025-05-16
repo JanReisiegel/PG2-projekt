@@ -174,6 +174,19 @@ void Model::draw(glm::mat4 const& model_matrix) {
 	}
 }
 
+void Model::jump(float deltaTime)
+{
+	if (!can_jump) {
+		float scaling = 0.05;
+		origin.y += jump_velocity * (1 / scaling);
+		jump_velocity -= gravity * deltaTime;
+		if (origin.y <= -0.36 * (1 / scaling)) {
+			origin.y = -0.36 * (1 / scaling);
+			can_jump = true;
+		}
+	}
+}
+
 void Model::clear(void) {
 	if (texture_id)
 	{
