@@ -257,6 +257,8 @@ int App::run(void)
         update_projection_matrix();
         glViewport(0, 0, width, height);
 
+        srand(static_cast<unsigned int>(time(0)));
+
         //camera.Position = glm::vec3(0, 0, 5);
         double last_frame_time = glfwGetTime();
 
@@ -326,7 +328,7 @@ int App::run(void)
                     lights.position[5] = glm::vec4(camera.Position, 1.0);
                     //lights.spot_direction[5] = camera.Front;
                     model.shader.setUniform("lights.position", lights.position);
-                    angle += glm::radians(static_cast<float>(0.00005f * glfwGetTime()));
+                    angle += 0.003f * delta_t;
                     //glm::vec3(0.0f, glm::radians(static_cast<float>(360 * glfwGetTime())), 0.0f));
                     if (name.starts_with("treasure")) {
                         if (intersect(camera.Position, model.meshes[0])) {
@@ -334,11 +336,13 @@ int App::run(void)
                             model.clear();
                             to_erase = name;
                         }
-                        if (model.can_jump) {
+                        if (model.can_jump and model.jump_timer <= 0.0f) {
                             model.can_jump = false;
                             model.jump_velocity = 0.012f;
+                            model.jump_timer = 0.6f + static_cast<float>(rand()) / RAND_MAX * 4.0f;
                         }
                         model.jump(delta_t);
+                        model.jump_timer -= delta_t;
                     }
 
                 }
@@ -360,7 +364,12 @@ int App::run(void)
             // draw sorted transparent
             for (auto p : transparent) {
                 //p->shader.setUniform("mycolor", ourRGBA);
-                p->draw();
+                if (p->additional_rotation != glm::vec3(0.0f)) {
+                    p->draw(glm::vec3(0.0f), p->additional_rotation);
+                }
+                else {
+                    p->draw();
+                }
             }
 
 			glDisable(GL_BLEND);
@@ -399,17 +408,15 @@ App::~App()
 	ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-	//glDeleteProgram(shader_prog_ID);
-	//glDeleteVertexArrays(1, &vao_ID);
-	//glDeleteBuffers(1, &vbo_ID);
     // clean-up
     for (auto model : scene) {
-        model.second.shader.clear();
+        model.second.clear();
     }
+    globalShader.clear();
     if (window)
         glfwDestroyWindow(window);
     glfwTerminate();
-    //cv::destroyAllWindows();
+    // cv::destroyAllWindows();
     std::cout << "Bye...\n";
 }
 
@@ -450,18 +457,13 @@ s_lights App::initLights(void) {
 
     // Positions
     lights.position[0] = glm::vec4(0, 0, 0, 1); //sun
-    lights.position[1] = glm::vec4(0.3, 1, 0.3, 0.0); //glm::vec4(10, 10, 25, 1);
-    lights.position[2] = glm::vec4(2, 2, 2, 1);
+    lights.position[1] = glm::vec4(0.3, 1, 0.3, 0.0); //directional, sky
+    lights.position[2] = glm::vec4(2, 2, 5, 1);
     lights.position[3] = glm::vec4(23, 2, 7, 1);
     lights.position[4] = glm::vec4(23, 2, 2, 1);
     lights.position[5] = glm::vec4(0, 0, 0, 1); //camera
 
     // Colors
-    /*lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
-    lights.color[1] = glm::vec3(0.0, 1.0, 0.0); 
-    lights.color[2] = glm::vec3(0.9, 0.95, 1.0);
-    lights.color[3] = glm::vec3(1.0, 0.95, 0.8);
-    lights.color[4] = glm::vec3(0.8, 0.9, 1.0);*/
     lights.color[0] = glm::vec3(1.0, 1.0, 0.0);
     lights.color[1] = glm::vec3(0.4, 0.4, 0.4);
     lights.color[2] = glm::vec3(0.3, 0.0, 0.8);
@@ -795,7 +797,15 @@ void App::genLabyrinth(cv::Mat& map) {
                 grass1.transparent = true;
                 grass1.origin.x = i;
                 grass1.origin.z = j;
-                scene.emplace("grass" + std::to_string(box_num), grass1);
+                grass1.additional_rotation = glm::vec3(0.0, glm::radians(static_cast<float>(45)), 0.0);
+                scene.emplace("grass1" + std::to_string(box_num), grass1);
+                Model grass2 = Model("resources/square.obj", wall_shader);
+                grass2.meshes[0].texture_id = grass_tex;
+                grass2.transparent = true;
+                grass2.origin.x = i;
+                grass2.origin.z = j;
+                grass2.additional_rotation = glm::vec3(0.0, glm::radians(static_cast<float>(135)), 0.0);
+                scene.emplace("grass2" + std::to_string(box_num), grass2);
             }
             if (getmap(map, i, j) == '#') {
                 Model box = Model("resources/cube_triangles_vnt.obj", wall_shader);
@@ -1016,22 +1026,6 @@ void App::init_assets() {
     my_model.scale *= 2.0f;
     //my_model.texture_id = mytex;
 
-    Model box = Model("resources/cube_triangles_vnt.obj", my_shader_program);
-    GLuint new_tex = textureInit("resources/tex_256.png", transparent);
-    box.transparent = transparent;
-    box.meshes[0].texture_id = new_tex;
-    box.scale *= 2.0f;
-    box.origin.x = 3;
-    box.origin.z = 2;
-
-    Model teapot = Model("resources/teapot_tri_vnt.obj", my_shader_program);
-    GLuint teapot_tex = textureInit("resources/TextureDouble_A.png", transparent);
-    teapot.transparent = true;
-    teapot.meshes[0].texture_id = teapot_tex;
-	teapot.origin.x = -5;
-	teapot.origin.z = 2;
-    //box.scale *= 1.0f;
-
     Model floor = Model("resources/square.obj", my_shader_program);
     GLuint floor_tex = textureInit("resources/grass_floor.jpg", transparent);
     floor.transparent = false;
@@ -1045,14 +1039,6 @@ void App::init_assets() {
 
     scene.emplace("sun", my_model);
     scene.emplace("floor", floor);
-    //scene.emplace("boxing", box);
-	//scene.emplace("teapot", teapot);
 
-    //cv::Mat mapa = cv::Mat(10, 25, CV_8U);
-    //cv::imshow("mapa", mapa);
     genLabyrinth(mapa);
-    //cv::imshow("mapa", mapa);
-
-    //Model height_map = init_hm();
-    //scene.emplace("height_map", height_map);
 }

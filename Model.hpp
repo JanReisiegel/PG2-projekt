@@ -17,11 +17,13 @@ public:
 	glm::vec3 scale{1.0f};
 	glm::mat4 local_model_matrix{1.0f};
     glm::vec3 orientation{};
+    glm::vec3 additional_rotation{0.0f};
 
     //jump
     GLfloat gravity = 0.03f;
-    GLfloat jump_velocity;
+    GLfloat jump_velocity = 0.0f;
     GLboolean can_jump = true;
+    GLfloat jump_timer = 0.0f;
 
 	ShaderProgram shader; //{0};
 	GLuint texture_id{ 0 }; // texture id=0  means no texture

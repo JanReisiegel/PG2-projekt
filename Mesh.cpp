@@ -121,17 +121,30 @@ void Mesh::clear(void) {
     texture_id = 0;
     primitive_type = GL_POINT;
     // TODO: clear rest of the member variables to safe default
-    // ----maybe wrong
-    VBO = 0;
-    VAO = 0;
-    EBO = 0;
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &EBO);
+    VBO = 0;
+    VAO = 0;
+    EBO = 0;
 
     // TODO: delete all allocations 
+    origin = glm::vec3(0.0f);
+    orientation = glm::vec3(0.0f);
+    texture_id = 0;
+    primitive_type = GL_POINT;
+    shader = ShaderProgram();
+
+    ambient_material = glm::vec4(1.0f);
+    diffuse_material = glm::vec4(1.0f);
+    specular_material = glm::vec4(1.0f);
+    reflectivity = 1.0f;
+
     vertices.clear();
     indices.clear();
+
+    AABB_max = glm::vec3(0.0f);
+    AABB_min = glm::vec3(0.0f);
 }
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, GLuint texture_id, ShaderProgram shader) :

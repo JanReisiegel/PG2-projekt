@@ -100,8 +100,6 @@ protected:
     // store projection matrix here, update only on callbacks
     glm::mat4 projection_matrix = glm::identity<glm::mat4>();
 
-
-
     // all objects of the scene
     std::unordered_map<std::string, Model> scene;
 	//Mesh height_map;

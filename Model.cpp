@@ -178,7 +178,7 @@ void Model::jump(float deltaTime)
 {
 	if (!can_jump) {
 		float scaling = 0.05;
-		origin.y += jump_velocity * (1 / scaling);
+		origin.y += jump_velocity * (1 / scaling) * deltaTime * 200.0;
 		jump_velocity -= gravity * deltaTime;
 		if (origin.y <= -0.36 * (1 / scaling)) {
 			origin.y = -0.36 * (1 / scaling);
@@ -188,9 +188,29 @@ void Model::jump(float deltaTime)
 }
 
 void Model::clear(void) {
+	name.clear();
+	origin = glm::vec3(0.0f);
+	scale = glm::vec3(1.0f);
+	orientation = glm::vec3(0.0f);
+	additional_rotation = glm::vec3(0.0f);
+	local_model_matrix = glm::mat4(1.0f);
+
+	gravity = 0.03f;
+	jump_velocity = 0.0f;
+	can_jump = true;
+	jump_timer = 0.0f;
+
+	shader = ShaderProgram();
+	transparent = false;
+
 	if (texture_id)
 	{
 		glDeleteTextures(1, &texture_id);
 		texture_id = 0;
 	}
+
+	for (auto& mesh : meshes) {
+		mesh.clear();
+	}
+	meshes.clear();
 }

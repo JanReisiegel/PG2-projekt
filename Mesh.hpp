@@ -30,6 +30,7 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 
+    // AABB collisions
     glm::vec3 AABB_max;
     glm::vec3 AABB_min;
     
